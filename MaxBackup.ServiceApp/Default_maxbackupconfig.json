@@ -33,7 +33,8 @@
           ".viminfo",
           "AppData\\Roaming\\conemu.xml",
           ".ssh\\**",
-          "Documents\\WindowsPowerShell\\**"
+          "Documents\\WindowsPowerShell\\**",
+          "Documents\\PowerShell\\**"
         ],
         "Exclude": [
           ".ssh\\**\\*~",
