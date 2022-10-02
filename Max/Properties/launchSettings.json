@@ -1,0 +1,8 @@
+{
+  "profiles": {
+    "Max": {
+      "commandName": "Project",
+      "commandLineArgs": "service"
+    }
+  }
+}
