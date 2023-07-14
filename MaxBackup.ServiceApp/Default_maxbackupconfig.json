@@ -19,6 +19,12 @@
           //"apiKey": "",
           "restrictedToMinimumLevel": "Information"
         }
+      },
+      {
+        "Name": "Console",
+        "Args": {
+          "restrictedToMinimumLevel": "Information"
+        }
       }
     ]
   },
