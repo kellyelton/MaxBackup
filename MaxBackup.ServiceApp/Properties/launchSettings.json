@@ -1,11 +1,12 @@
-﻿{
+{
   "profiles": {
     "MaxBackup.ServiceApp": {
       "commandName": "Project",
-      "dotnetRunMessages": true,
       "environmentVariables": {
-        "DOTNET_ENVIRONMENT": "Development"
-      }
+        "DOTNET_ENVIRONMENT": "Development",
+        "MAXBACKUP_ENVIRONMENT": "Production"
+      },
+      "dotnetRunMessages": true
     }
   }
 }
