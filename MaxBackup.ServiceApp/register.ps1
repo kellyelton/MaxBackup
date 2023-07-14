@@ -82,7 +82,23 @@ Get-ChildItem "$sourcefolder" | Copy-Item -Destination "$installpath" -Recurse
 if ($service -eq $null) {
 	Write-Information "Configuring service"
 
-	$cred = Get-Credential
+	# get domain name of current user account
+	$domain = [System.Environment]::UserDomainName
+
+	# if no domain name, use machine name
+	if ($domain -eq $null) {
+		$domain = [System.Environment]::MachineName
+	}
+
+	# get username of current user account
+	$user = [System.Environment]::UserName
+
+	$login = $domain + '\' + $user
+
+	$SecureString = Read-Host -AsSecureString 'Enter your password ' | ConvertFrom-SecureString | ConvertTo-SecureString
+
+	# Users you password securly
+	$cred = New-Object -TypeName System.Management.Automation.PSCredential -ArgumentList $login, $SecureString
 
 	$binpath = "$installpath\\MaxBackup.ServiceApp.exe"
 
