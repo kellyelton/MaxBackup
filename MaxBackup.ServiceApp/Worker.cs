@@ -89,9 +89,20 @@ namespace MaxBackup.ServiceApp
                     matcher.AddExclude(exclude);
                 }
 
+                { // Add default excludes
+                    // check if the source is the root of a drive
+                    var drive = Path.GetPathRoot(config.Source);
+                    if (drive != null && drive.Length == 3 && drive.EndsWith(":\\", StringComparison.OrdinalIgnoreCase))
+                    {
+                        matcher.AddExclude("$Recycle.Bin");
+                        matcher.AddExclude("System Volume Information");
+                        matcher.AddExclude("*~");
+                    }
+                }
+
                 _logger.LogInformation("Scanning for files {path}", config.Source);
 
-                string[] sources;
+                HashSet<string> sources = new HashSet<string>();
                 var tcs = new TaskCompletionSource();
 
                 using (stoppingToken.Register(() => tcs.TrySetCanceled(stoppingToken)))
@@ -104,35 +115,65 @@ namespace MaxBackup.ServiceApp
                     {
                         throw new OperationCanceledException(stoppingToken);
                     }
-                    else
+
+                    IEnumerable<string> results;
+
+                    try
                     {
-                        IEnumerable<string> results;
+                        results = await matchTask;
+                    }
+                    catch (Exception ex)
+                    {
+                        _logger.LogError(ex, "Error scanning files for job {name}. Skipping job.", config.Name);
 
-                        try
+                        return;
+                    }
+
+                    if (results == null)
+                    {
+                        _logger.LogWarning("Null results from matcher");
+
+                        return;
+                    }
+
+                    // Do some post filtering of paths
+                    foreach (var source in results)
+                    {
+                        // Check if the path is a system file like ".849C9593-D756-4E56-8D6E-42412F2A707B"
+                        var filename = System.IO.Path.GetFileName(source);
+
+                        if (string.IsNullOrWhiteSpace(filename))
                         {
-                            results = await matchTask;
+                            sources.Add(source);
+                            continue;
                         }
-                        catch (Exception ex)
+
+                        if (filename[0] == '.' && (filename.Length == 37 || filename.Length == 33))
                         {
-                            _logger.LogError(ex, "Error scanning files for job {name}. Skipping job.", config.Name);
+                            // check if the filename is a guid
+                            var guidString = filename.Substring(1);
+                            if (Guid.TryParse(guidString, out var guid))
+                            {
+                                // Check if the file has the System attribute set
+                                var attributes = File.GetAttributes(source);
+                                if ((attributes & FileAttributes.System) == FileAttributes.System)
+                                {
+                                    _logger.LogDebug("Skipping system file {file}", source);
 
-                            return;
+                                    continue;
+                                }
+                            }
                         }
 
-                        if (results == null)
-                        {
-                            _logger.LogWarning("Null results from matcher");
-
-                            return;
-                        }
-
-                        sources = results.ToArray();
+                        sources.Add(source);
                     }
                 }
 
                 _logger.LogInformation("Backing up files to {path}", config.Destination);
 
-                await Task.Run(() => BackupFiles(sources, config.Source, config.Destination, stoppingToken), stoppingToken);
+                var sourcesArray = sources.ToArray();
+
+                await Task.Run(() => BackupFiles(sourcesArray, config.Source, config.Destination, stoppingToken), stoppingToken);
             }
         }
 
