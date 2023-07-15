@@ -7,12 +7,12 @@ IHost host = Host.CreateDefaultBuilder(args)
         options.ServiceName = "MaxBackup";
     })
     .ConfigureAppConfiguration((context, config) => {
-        if (context.HostingEnvironment.IsProduction()) {
+        //if (context.HostingEnvironment.IsProduction()) {
             var configpath = Environment.GetFolderPath(Environment.SpecialFolder.UserProfile);
             configpath = Path.Combine(configpath, "maxbackupconfig.json");
 
             config.AddJsonFile(configpath, true, true);
-        }
+        //}
     })
     .ConfigureHostConfiguration(config => {
         config.AddEnvironmentVariables("MAXBACKUP_");
