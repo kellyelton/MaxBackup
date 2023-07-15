@@ -82,11 +82,12 @@ Get-ChildItem "$sourcefolder" | Copy-Item -Destination "$installpath" -Recurse
 if ($service -eq $null) {
 	Write-Information "Configuring service"
 
-	$cred = Get-Credential
+	# register credentials of current user
+	#$cred = get-credentials
 
 	$binpath = "$installpath\\MaxBackup.ServiceApp.exe"
 
-	New-Service -name $ServiceName -binaryPathName $binpath -displayName $ServiceName -startupType Automatic -credential $cred
+	New-Service -name $ServiceName -binaryPathName $binpath -displayName $ServiceName -startupType Automatic # -credential $cred
 }
 
 Write-Information "Starting service..."
