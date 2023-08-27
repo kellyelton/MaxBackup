@@ -1,3 +1,4 @@
+using System.Diagnostics;
 using Microsoft.Extensions.FileSystemGlobbing;
 using Microsoft.Extensions.Options;
 
@@ -177,11 +178,43 @@ namespace MaxBackup.ServiceApp
             }
         }
 
-        private void BackupFiles(string[] sources, string sourceRoot, string destinationRoot, CancellationToken stoppingToken)
-        {
-            foreach (var source in sources)
-            {
+        private void BackupFiles(string[] sources, string sourceRoot, string destinationRoot, CancellationToken stoppingToken) {
+            _logger.LogInformation("Backing up {fileCount} files in {sourceRoot} to {destinationRoot}", sources.Length, sourceRoot, destinationRoot);
+
+            if (sources.Length == 0) return;
+
+            var backupCount = 0;
+            var upToDateCount = 0;
+            var errorCount = 0;
+            var missingCount = 0;
+            var backupByteCount = 0;
+            var stopWatch = new Stopwatch();
+            stopWatch.Start();
+            var lastSleepTime = DateTime.Now;
+            var nextSleepTime = DateTime.Now.AddMilliseconds(500);
+            var sleepTime = TimeSpan.FromMilliseconds(10);
+            var lastReportTime = DateTime.Now;
+            var nextReportTime = DateTime.Now.AddSeconds(30);
+            foreach (var source in sources) {
                 stoppingToken.ThrowIfCancellationRequested();
+
+                if (DateTime.Now >= nextSleepTime) {
+                    Thread.Sleep(sleepTime);
+
+                    stoppingToken.ThrowIfCancellationRequested();
+
+                    lastSleepTime = DateTime.Now;
+                    nextSleepTime = DateTime.Now.AddMilliseconds(500);
+                }
+
+                if (DateTime.Now >= nextReportTime) {
+                    var processed = backupCount + upToDateCount + errorCount + missingCount;
+                    var percent = (processed / (double)sources.Length) * 100;
+                    _logger.LogInformation("Backing up...{percent:0.00}% {processed}/{total}", percent, processed, sources.Length);
+
+                    lastReportTime = DateTime.Now;
+                    nextReportTime = DateTime.Now.AddSeconds(30);
+                }
 
                 var relativePath = Path.GetRelativePath(sourceRoot, source);
 
@@ -190,26 +223,22 @@ namespace MaxBackup.ServiceApp
                 _logger.LogDebug("Backing up file {file} to {destination}", source, destination);
 
                 var dir = Path.GetDirectoryName(destination);
-                try
-                {
+                try {
                     if (dir == null) throw new InvalidOperationException("Parent directory returned null");
 
-                    if (!Directory.Exists(dir))
-                    {
+                    if (!Directory.Exists(dir)) {
                         Directory.CreateDirectory(dir);
                     }
-                }
-                catch (Exception ex)
-                {
+                } catch (Exception ex) {
                     _logger.LogError(ex, "Could not create directory {dir}", dir);
+
+                    errorCount++;
 
                     continue;
                 }
 
-                try
-                {
-                    if (File.Exists(destination))
-                    {
+                try {
+                    if (File.Exists(destination)) {
                         var fi = new FileInfo(destination);
                         fi.Attributes &= ~FileAttributes.Hidden;
                         fi.Attributes &= ~FileAttributes.ReadOnly;
@@ -217,42 +246,101 @@ namespace MaxBackup.ServiceApp
                         var existingWriteDate = File.GetLastWriteTimeUtc(source);
                         var destWriteDate = fi.LastWriteTimeUtc;
 
-                        if (existingWriteDate == destWriteDate)
-                        {
+                        if (existingWriteDate == destWriteDate) {
                             _logger.LogDebug("Destination file already up to date. Skipping. {file}", destination);
+
+                            upToDateCount++;
 
                             continue;
                         }
                     }
 
                     File.Copy(source, destination, true);
-                }
-                catch (Exception ex)
-                {
+
+                    backupCount++;
+
+                    {
+                        var fi = new FileInfo(destination);
+                        backupByteCount += (int)fi.Length;
+                    }
+                } catch (FileNotFoundException ex) {
+                    _logger.LogDebug(ex, "File not found {file}", source);
+
+                    missingCount++;
+
+                    continue;
+                } catch (DirectoryNotFoundException ex) {
+                    _logger.LogDebug(ex, ex.Message);
+
+                    missingCount++;
+
+                    continue;
+                } catch (IOException ex) when (ex.HResult == -2147024864) {
+                    // file in use by another process
+                    _logger.LogWarning(ex.Message);
+
+                    errorCount++;
+
+                    continue;
+                } catch (UnauthorizedAccessException ex) {
+                    _logger.LogWarning(ex.Message);
+
+                    errorCount++;
+
+                    continue;
+                } catch (Exception ex) {
                     _logger.LogError(ex, "Could not back up {file} to {destination}", source, destination);
+
+                    errorCount++;
 
                     continue;
                 }
 
-                try
-                {
+                try {
                     var createTime = File.GetCreationTime(source);
                     File.SetCreationTime(destination, createTime);
-                }
-                catch (Exception ex)
-                {
+                } catch (Exception ex) {
                     _logger.LogError(ex, "Could not update creation time for {file}", destination);
                 }
 
-                try
-                {
+                try {
                     var writeTime = File.GetLastWriteTime(source);
                     File.SetLastWriteTime(destination, writeTime);
-                }
-                catch (Exception ex)
-                {
+                } catch (Exception ex) {
                     _logger.LogError(ex, "Could not update write time for {file}", destination);
                 }
+            }
+
+            stopWatch.Stop();
+
+            var elapsedLogText = stopWatch.Elapsed.ToString("g");
+
+            string backupSize;
+            if (backupByteCount < 1024) {
+                backupSize = $"{backupByteCount} bytes";
+            } else if (backupByteCount < 1024 * 1024) {
+                backupSize = $"{backupByteCount / 1024} KB";
+            } else if (backupByteCount < 1024 * 1024 * 1024) {
+                backupSize = $"{backupByteCount / (1024 * 1024)} MB";
+            } else {
+                backupSize = $"{backupByteCount / (1024 * 1024 * 1024)} GB";
+            }
+
+            if (sources.Length == upToDateCount) {
+                _logger.LogInformation("All files already up to date. {fileCount} up to date files skipped. {elapsed}", upToDateCount, elapsedLogText);
+            } else {
+                _logger.LogInformation("Backed up {backupCount}/{totalCount} ({backupSize}) files in {elapsed}", backupCount, sources.Length, backupSize, elapsedLogText);
+
+                if (upToDateCount > 0) {
+                    _logger.LogInformation("Skipped {upToDateCount}/{totalCount} files that were already up to date", upToDateCount, sources.Length);
+                }
+            }
+
+            if (errorCount > 0) {
+                _logger.LogWarning("Skipped {errorCount}/{totalCount} due to errors", errorCount, sources.Length);
+            }
+            if (missingCount > 0) {
+                _logger.LogWarning("Skipped {missingCount}/{totalCount} that disappeared during the backup", missingCount, sources.Length);
             }
         }
     }
