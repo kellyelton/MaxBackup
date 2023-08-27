@@ -7,7 +7,7 @@ namespace Max;
 
 public class ServiceCommand : Command, ICommandHandler
 {
-    public const string ServiceName = "MaxBackup";
+    public const string ServiceName = "max backup";
 
     public ServiceCommand()
         : base("service", "Backup Service Controller") {
