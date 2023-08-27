@@ -1,0 +1,39 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<Wix xmlns="http://wixtoolset.org/schemas/v4/wxs">
+	<Fragment>
+		<Component Id="MaxBackupServiceComponent" Bitness="always64" Directory="SVCINSTALLFOLDER">
+
+			<!-- Copies the MaxBackup.ServiceApp.exe file using the
+					 project reference preprocessor variables -->
+			<File Id="MaxBackup.ServiceApp.exe"
+				  Source="$(var.MaxBackup.ServiceApp.ProjectDir)bin\publish\win\MaxBackup.ServiceApp.exe"
+				  KeyPath="true" />
+			<File Id="appsettings.json"
+				  Source="$(var.MaxBackup.ServiceApp.ProjectDir)bin\publish\win\appsettings.json"
+				  KeyPath="false" />
+			<File Id="Default_maxbackupconfig.json"
+				  Source="$(var.MaxBackup.ServiceApp.ProjectDir)bin\publish\win\Default_maxbackupconfig.json"
+				  KeyPath="false" />
+
+			<!-- Remove all files from the INSTALLFOLDER on uninstall -->
+			<RemoveFile Id="SVCALLFILES" Name="*.*" On="both" />
+
+			<!-- Tell WiX to install the Service -->
+			<ServiceInstall Id="ServiceInstaller"
+							Type="ownProcess"
+							Name="max backup"
+							DisplayName="max backup"
+							Description="backup service"
+							Start="auto"
+							ErrorControl="normal"
+		    />
+			<!-- Tell WiX to start the Service -->
+			<ServiceControl Id="StartService"
+							Start="install"
+							Stop="both"
+							Remove="uninstall"
+							Name="max backup"
+							Wait="true" />
+		</Component>
+	</Fragment>
+</Wix>

@@ -1,0 +1,10 @@
+<Wix xmlns="http://wixtoolset.org/schemas/v4/wxs">
+	<Fragment>
+		<StandardDirectory Id="ProgramFiles6432Folder">
+			<Directory Id="INSTALLFOLDER" Name="max">
+				<Directory Id="SVCINSTALLFOLDER" Name="svc"/>
+				<Directory Id="CLIINSTALLFOLDER" Name="cli"/>
+			</Directory>
+		</StandardDirectory>
+	</Fragment>
+</Wix>
