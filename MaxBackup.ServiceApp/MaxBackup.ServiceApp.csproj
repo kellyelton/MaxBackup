@@ -9,10 +9,11 @@
     <PlatformTarget>x64</PlatformTarget>
     <Authors>Kelly Elton</Authors>
     <PackageLicenseFile>LICENSE</PackageLicenseFile>
-    <!--<PublishSingleFile>true</PublishSingleFile>
+    <OutputType>Exe</OutputType>
+    <TargetFramework>net6.0</TargetFramework>
+    <PublishSingleFile>true</PublishSingleFile>
     <SelfContained>true</SelfContained>
-	<RuntimeIdentifier>win-x64</RuntimeIdentifier>
-	<OutputType>Exe</OutputType>-->
+    <RuntimeIdentifier>win-x64</RuntimeIdentifier>
   </PropertyGroup>
 
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|AnyCPU'">
