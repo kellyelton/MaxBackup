@@ -80,10 +80,10 @@ jobs:
       uses: microsoft/setup-msbuild@v1.0.2
 
     - name: publish cli
-      run: dotnet publish Max\Max.csproj -c Release -o Max\bin\publish\win
+      run: dotnet publish Max\Max.csproj -c Release -o Max\bin\publish\win -p:Platform=x64
 
     - name: publish svc
-      run: dotnet publish MaxBackup.ServiceApp\MaxBackup.ServiceApp.csproj -c Release -o MaxBackup.ServiceApp\bin\publish\win
+      run: dotnet publish MaxBackup.ServiceApp\MaxBackup.ServiceApp.csproj -c Release -o MaxBackup.ServiceApp\bin\publish\win -p:Platform=x64
 
     - name: build installer
       run: dotnet build Max.Installer.Package\Max.Installer.Package.wixproj -c Release

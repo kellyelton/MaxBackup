@@ -2,7 +2,6 @@
 <Wix xmlns="http://wixtoolset.org/schemas/v4/wxs">
 	<Fragment>
 		<Component Id="MaxBackupServiceComponent" Bitness="always64" Directory="SVCINSTALLFOLDER">
-
 			<!-- Copies the MaxBackup.ServiceApp.exe file using the
 					 project reference preprocessor variables -->
 			<File Id="MaxBackup.ServiceApp.exe"
