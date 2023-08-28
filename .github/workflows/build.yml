@@ -86,7 +86,7 @@ jobs:
       run: dotnet publish MaxBackup.ServiceApp\MaxBackup.ServiceApp.csproj -c Release -o MaxBackup.ServiceApp\bin\publish\win -p:Platform=x64
 
     - name: build installer
-      run: dotnet build Max.Installer.Package\Max.Installer.Package.wixproj -c Release
+      run: dotnet build Max.Installer.Package\Max.Installer.Package.wixproj -c Release -p:Platform=x64
 
     # Upload the MSIX package: https://github.com/marketplace/actions/upload-a-build-artifact
     - name: Upload build artifacts
