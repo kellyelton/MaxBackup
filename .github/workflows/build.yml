@@ -93,4 +93,4 @@ jobs:
       uses: actions/upload-artifact@v3
       with:
         name: MSI Package
-        path: Max.Installer.Package\x64\Release\en-US\Max.Installer.Package.msi
+        path: Max.Installer.Package\bin\x64\Release\en-US\Max.Installer.Package.msi
