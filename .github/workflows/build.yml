@@ -103,4 +103,4 @@ jobs:
         prerelease: true
         title: "Latest Build"
         files: |
-          *.msi
+          Max.Installer.Package\bin\x64\Release\en-US\Max.Installer.Package.msi
