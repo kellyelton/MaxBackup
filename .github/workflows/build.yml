@@ -94,3 +94,13 @@ jobs:
       with:
         name: MSI Package
         path: Max.Installer.Package\bin\x64\Release\en-US\Max.Installer.Package.msi
+
+    - name: Create Pre-Release
+      uses: "marvinpinto/action-automatic-releases@latest"
+      with:
+        repo_token: "${{ secrets.GITHUB_TOKEN }}"
+        automatic_release_tag: "latest"
+        prerelease: true
+        title: "Latest Build"
+        files: |
+          *.msi
