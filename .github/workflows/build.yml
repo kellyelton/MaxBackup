@@ -76,8 +76,8 @@ jobs:
       run: dotnet tool install --global wix
 
     # Add  MSBuild to the PATH: https://github.com/microsoft/setup-msbuild
-    - name: Setup MSBuild.exe
-      uses: microsoft/setup-msbuild@v1.0.2
+    # - name: Setup MSBuild.exe
+    #   uses: microsoft/setup-msbuild@v1.0.2
 
     - name: publish cli
       run: dotnet publish Max\Max.csproj -c Release -o Max\bin\publish\win -p:Platform=x64
@@ -95,13 +95,24 @@ jobs:
         name: MSI Package
         path: Max.Installer.Package\bin\x64\Release\en-US\Max.Installer.Package.msi
 
-    - name: Create Pre-Release
+    - name: Create 'preview' Release
       uses: "marvinpinto/action-automatic-releases@latest"
+      if: github.ref == 'refs/heads/preview'
+      with:
+        repo_token: "${{ secrets.GITHUB_TOKEN }}"
+        automatic_release_tag: "preview"
+        prerelease: false
+        title: "Preview"
+        files: "Max.Installer.Package/bin/x64/Release/en-US/Max.Installer.Package.msi"
+
+    - name: Create 'latest' Release
+      uses: "marvinpinto/action-automatic-releases@latest"
+      if: github.ref == 'refs/heads/master'
       with:
         repo_token: "${{ secrets.GITHUB_TOKEN }}"
         automatic_release_tag: "latest"
         prerelease: true
-        title: "Latest Build"
+        title: "Latest"
         files: "Max.Installer.Package/bin/x64/Release/en-US/Max.Installer.Package.msi"
 
 #D:\a\MaxBackup\MaxBackup\Max.Installer.Package\bin\x64\Release\en-US\Max.Installer.Package.msi
