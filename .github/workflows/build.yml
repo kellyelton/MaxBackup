@@ -105,14 +105,14 @@ jobs:
         title: "Preview"
         files: "Max.Installer.Package/bin/x64/Release/en-US/Max.Installer.Package.msi"
 
-    - name: Create 'latest' Release
+    - name: Create 'stable' Release
       uses: "marvinpinto/action-automatic-releases@latest"
       if: github.ref == 'refs/heads/master'
       with:
         repo_token: "${{ secrets.GITHUB_TOKEN }}"
-        automatic_release_tag: "latest"
+        automatic_release_tag: "stable"
         prerelease: true
-        title: "Latest"
+        title: "Stable"
         files: "Max.Installer.Package/bin/x64/Release/en-US/Max.Installer.Package.msi"
 
 #D:\a\MaxBackup\MaxBackup\Max.Installer.Package\bin\x64\Release\en-US\Max.Installer.Package.msi
