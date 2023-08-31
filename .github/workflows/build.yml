@@ -85,14 +85,8 @@ jobs:
 
     - name: Use the version
       run: |
-        echo VERSION ${{ steps.version.outputs.assemblySemVer }}
-        # set env variable MAX_VERSION to the version
-        echo "MAX_VERSION=${{ steps.version.outputs.assemblySemVer }}" >> $GITHUB_ENV
-        # if MAX_VERSION is empty or not set, exit with error
-        if [ -z "${{ steps.version.outputs.assemblySemVer }}" ]; then
-          echo "MAX_VERSION is not set or empty"
-          exit 1
-        fi
+        # powershell
+        Write-Output VERSION ${{ steps.version.outputs.assemblySemVer }}
 
     - name: publish cli
       run: dotnet publish Max\Max.csproj -c Release
