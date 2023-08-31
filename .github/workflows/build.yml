@@ -39,9 +39,9 @@
 name: max backup build
 on:
   push:
-    branches: [ "master", "preview" ]
+    branches: [ "master", "test" ]
   pull_request:
-    branches: [ "master", "preview" ]
+    branches: [ "master", "test" ]
 
 jobs:
 
@@ -97,7 +97,7 @@ jobs:
 
     - name: Create 'preview' Release
       uses: "marvinpinto/action-automatic-releases@latest"
-      if: github.ref == 'refs/heads/preview'
+      if: github.ref == 'refs/heads/test'
       with:
         repo_token: "${{ secrets.GITHUB_TOKEN }}"
         automatic_release_tag: "preview"
