@@ -39,9 +39,9 @@
 name: max backup build
 on:
   push:
-    branches: [ "master", "next" ]
+    branches: [ "master", "preview" ]
   pull_request:
-    branches: [ "master", "next" ]
+    branches: [ "master", "preview" ]
 
 jobs:
 
