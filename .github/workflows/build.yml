@@ -115,7 +115,7 @@ jobs:
       with:
         repo_token: "${{ secrets.GITHUB_TOKEN }}"
         automatic_release_tag: "${{ steps.version.outputs.assemblySemVer }}"
-        prerelease: false
+        prerelease: true
         title: "Preview v${{ steps.version.outputs.assemblySemVer }}"
         files: "Max.Installer.Package/bin/x64/Release/en-US/Max.Installer.Package.msi"
   
@@ -126,27 +126,7 @@ jobs:
         repo_token: "${{ secrets.GITHUB_TOKEN }}"
         automatic_release_tag: "${{ steps.version.outputs.assemblySemVer }}"
         prerelease: false
-        title: "Stable v${{ steps.version.outputs.assemblySemVer }}"
-        files: "Max.Installer.Package/bin/x64/Release/en-US/Max.Installer.Package.msi"
-
-    - name: Create 'preview' Release
-      uses: "marvinpinto/action-automatic-releases@latest"
-      if: github.ref == 'refs/heads/test'
-      with:
-        repo_token: "${{ secrets.GITHUB_TOKEN }}"
-        automatic_release_tag: "preview"
-        prerelease: false
-        title: "Preview"
-        files: "Max.Installer.Package/bin/x64/Release/en-US/Max.Installer.Package.msi"
-
-    - name: Create 'stable' Release
-      uses: "marvinpinto/action-automatic-releases@latest"
-      if: github.ref == 'refs/heads/master'
-      with:
-        repo_token: "${{ secrets.GITHUB_TOKEN }}"
-        automatic_release_tag: "stable"
-        prerelease: false
-        title: "Stable"
+        title: "v${{ steps.version.outputs.assemblySemVer }}"
         files: "Max.Installer.Package/bin/x64/Release/en-US/Max.Installer.Package.msi"
 
 #D:\a\MaxBackup\MaxBackup\Max.Installer.Package\bin\x64\Release\en-US\Max.Installer.Package.msi
