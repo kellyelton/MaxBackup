@@ -87,10 +87,14 @@ jobs:
       run: dotnet tool install --global wix
 
     - name: publish cli
-      run: dotnet publish Max\Max.csproj -c Release -o Max\bin\publish\win -p:Platform=x64
+      run: dotnet publish Max\Max.csproj -c Release
+        -o Max\bin\publish\win -p:Platform=x64
+        /p:AssemblyVersion=${{ steps.version.outputs.version }} /p:Version=${{ steps.version.outputs.version }}
 
     - name: publish svc
-      run: dotnet publish MaxBackup.ServiceApp\MaxBackup.ServiceApp.csproj -c Release -o MaxBackup.ServiceApp\bin\publish\win -p:Platform=x64
+      run: dotnet publish MaxBackup.ServiceApp\MaxBackup.ServiceApp.csproj -c Release
+        -o MaxBackup.ServiceApp\bin\publish\win -p:Platform=x64
+        /p:AssemblyVersion=${{ steps.version.outputs.version }} /p:Version=${{ steps.version.outputs.version }}
 
     - name: build installer
       run: dotnet build Max.Installer.Package\Max.Installer.Package.wixproj -c Release -p:Platform=x64
@@ -101,6 +105,26 @@ jobs:
       with:
         name: MSI Package
         path: Max.Installer.Package\bin\x64\Release\en-US\Max.Installer.Package.msi
+
+    - name: Create 'preview' Release v${{ steps.version.outputs.version }}
+      uses: "marvinpinto/action-automatic-releases@latest"
+      if: github.ref == 'refs/heads/test'
+      with:
+        repo_token: "${{ secrets.GITHUB_TOKEN }}"
+        automatic_release_tag: "${{ steps.version.outputs.version }}"
+        prerelease: false
+        title: "Preview v${{ steps.version.outputs.version }}"
+        files: "Max.Installer.Package/bin/x64/Release/en-US/Max.Installer.Package.msi"
+  
+    - name: Create 'stable' Release v${{ steps.version.outputs.version }}
+      uses: "marvinpinto/action-automatic-releases@latest"
+      if: github.ref == 'refs/heads/master'
+      with:
+        repo_token: "${{ secrets.GITHUB_TOKEN }}"
+        automatic_release_tag: "${{ steps.version.outputs.version }}"
+        prerelease: false
+        title: "Stable v${{ steps.version.outputs.version }}"
+        files: "Max.Installer.Package/bin/x64/Release/en-US/Max.Installer.Package.msi"
 
     - name: Create 'preview' Release
       uses: "marvinpinto/action-automatic-releases@latest"
@@ -118,7 +142,7 @@ jobs:
       with:
         repo_token: "${{ secrets.GITHUB_TOKEN }}"
         automatic_release_tag: "stable"
-        prerelease: true
+        prerelease: false
         title: "Stable"
         files: "Max.Installer.Package/bin/x64/Release/en-US/Max.Installer.Package.msi"
 
