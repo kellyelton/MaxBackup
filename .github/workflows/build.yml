@@ -66,6 +66,17 @@ jobs:
       with:
         fetch-depth: 0
 
+    - name: Git Version
+      id: version
+      uses: codacy/git-version@2.7.1
+      with:
+        dev-branch: test
+        release-branch: master
+
+    - name: Use the version
+      run: |
+        echo VERSION ${{ steps.version.outputs.version }}
+
     # Install the .NET Core workload
     - name: Install .NET Core
       uses: actions/setup-dotnet@v3
@@ -74,10 +85,6 @@ jobs:
 
     - name: install wix toolset
       run: dotnet tool install --global wix
-
-    # Add  MSBuild to the PATH: https://github.com/microsoft/setup-msbuild
-    # - name: Setup MSBuild.exe
-    #   uses: microsoft/setup-msbuild@v1.0.2
 
     - name: publish cli
       run: dotnet publish Max\Max.csproj -c Release -o Max\bin\publish\win -p:Platform=x64
