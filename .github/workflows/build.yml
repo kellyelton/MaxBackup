@@ -102,6 +102,6 @@ jobs:
         automatic_release_tag: "latest"
         prerelease: true
         title: "Latest Build"
-        files: **\Max.Installer.Package.msi
+        files: "*\\Max.Installer.Package.msi"
 
 #D:\a\MaxBackup\MaxBackup\Max.Installer.Package\bin\x64\Release\en-US\Max.Installer.Package.msi
