@@ -52,7 +52,8 @@ var fileproviders = config.Providers
 ;
 
 foreach (var provider in fileproviders) {
-    logger.LogInformation("Config File: {file}", provider.Source.Path);
+    var file = provider.Source.FileProvider.GetFileInfo(provider.Source.Path);
+    logger.LogInformation("Config File: {file}", file.PhysicalPath);
 }
 
 logger.LogInformation("Running");
