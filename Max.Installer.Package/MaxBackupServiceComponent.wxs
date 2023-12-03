@@ -25,6 +25,9 @@
 							Description="backup service"
 							Start="auto"
 							ErrorControl="normal"
+							Account=".\LOCAL_ACCOUNT"
+							Vital="yes"
+							Interactive="no"
 		    />
 			<!-- Tell WiX to start the Service -->
 			<ServiceControl Id="StartService"
