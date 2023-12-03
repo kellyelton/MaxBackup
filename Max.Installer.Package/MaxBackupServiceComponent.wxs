@@ -29,13 +29,19 @@
 							Vital="yes"
 							Interactive="no"
 		    />
-			<!-- Tell WiX to start the Service -->
-			<ServiceControl Id="StartService"
-							Start="install"
-							Stop="both"
-							Remove="uninstall"
-							Name="max backup"
-							Wait="true" />
+
+			<ServiceControl
+				Id="StartService"
+				Name="max backup"
+				Start="install"
+				Wait="yes" />
+
+			<ServiceControl
+				Id="StopService"
+				Name="max backup"
+				Stop="uninstall"
+				Remove="uninstall"
+				Wait="yes" />
 		</Component>
 	</Fragment>
 </Wix>
