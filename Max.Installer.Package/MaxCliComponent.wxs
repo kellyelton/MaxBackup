@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <Wix xmlns="http://wixtoolset.org/schemas/v4/wxs">
   <Fragment>
-	  <Component Id="MaxCliComponent" Bitness="always64" Directory="CLIINSTALLFOLDER">
+	  <Component Id="MaxCliComponent" Directory="CLIINSTALLFOLDER">
 		  <!-- Copies the MaxBackup.ServiceApp.exe file using the
 					 project reference preprocessor variables -->
 		  <File Id="max.exe"
