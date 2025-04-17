@@ -10,11 +10,15 @@ namespace max
     public sealed class JobsCommand : Command, ICommandHandler
     {
         private readonly Option<string> _config_path;
+        private readonly Option<bool> _verbose;
 
-        public JobsCommand(Option<string> config_path)
+        public JobsCommand(Option<string> config_path, Option<bool> verbose)
             : base("jobs", "List the backup jobs")
         {
             _config_path = config_path ?? throw new ArgumentNullException(nameof(config_path));
+            _verbose = verbose ?? throw new ArgumentNullException(nameof(verbose));
+
+            Handler = this;
         }
 
         public int Invoke(InvocationContext context) {
@@ -22,6 +26,11 @@ namespace max
         }
 
         public Task<int> InvokeAsync(InvocationContext context) {
+            var verbose = context.BindingContext.ParseResult.GetValueForOption(_verbose);
+            if (verbose) {
+                context.Console.Out.WriteLine("Verbose mode is enabled.");
+            }
+
             var config_file_path = context.BindingContext.ParseResult.GetValueForOption(_config_path);
 
             if (string.IsNullOrWhiteSpace(config_file_path)) {

@@ -34,18 +34,18 @@ using max;
 
 var default_config_path = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.UserProfile), "maxbackupconfig.json");
 
-var verboseOption = new Option<int>("--verbose");
+var verboseOption = new Option<bool>("--verbose");
 var configPathOption = new Option<string>(
     "--config-path",
     () => default_config_path,
     "The path to the config file. Defaults to %USERPROFILE%\\maxbackupconfig.json"
 );
 
-var jobs_command = new JobsCommand(configPathOption);
+var jobs_command = new JobsCommand(configPathOption, verboseOption);
 
 var rootCommand = new RootCommand("Max backup app for windows. This is the cli app that controls/configures the service.");
-rootCommand.Add(verboseOption);
-rootCommand.Add(configPathOption);
+rootCommand.AddGlobalOption(verboseOption);
+rootCommand.AddGlobalOption(configPathOption);
 rootCommand.SetHandler(context => {
     var con = new HelpContext(context.HelpBuilder, rootCommand, context.Console.Out.CreateTextWriter());
     context.HelpBuilder.Write(con);
