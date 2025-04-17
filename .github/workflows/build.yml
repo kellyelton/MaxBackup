@@ -83,6 +83,9 @@ jobs:
     - name: Determine Version
       id: version
       uses: gittools/actions/gitversion/execute@v3.2.0
+      with:
+        useConfigFile: true
+        configFilePath: GitVersion.yml
 
     - name: Use the version
       run: |
