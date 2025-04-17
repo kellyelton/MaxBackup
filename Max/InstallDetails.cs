@@ -6,9 +6,9 @@ public class InstallDetails
 
     public InstallStatus Status { get; internal set; }
 
-    public string FullPath { get; internal set; }
+    public string FullPath { get; internal set; } = string.Empty;
 
-    public string ExePath { get; internal set; }
+    public string ExePath { get; internal set; } = string.Empty;
 
-    public Version Version { get; internal set; }
+    public Version Version { get; internal set; } = new Version(0, 0, 0, 0);
 }

@@ -16,14 +16,10 @@ public class InstallCommand : Command, ICommandHandler
         Handler = this;
         var ass = typeof(InstallCommand).Assembly;
 
-        ThisVersion = ass.GetName().Version;
+        ThisVersion = ass?.GetName().Version ?? new Version(0, 0, 0, 0);
     }
 
     public int Invoke(InvocationContext context) {
-        throw new NotImplementedException();
-    }
-
-    public async Task<int> InvokeAsync(InvocationContext context) {
         var current_install = GetInstallDetails();
 
         if (current_install is not null) {
@@ -41,7 +37,6 @@ public class InstallCommand : Command, ICommandHandler
 
             // Stop service
         }
-
         //TODO: Install
         // Create directories
         // Set envvar path
@@ -49,6 +44,10 @@ public class InstallCommand : Command, ICommandHandler
         // Configure service
         // Start Service
 
+        throw new NotImplementedException();
+    }
+
+    public Task<int> InvokeAsync(InvocationContext context) {
         throw new NotImplementedException();
     }
 
