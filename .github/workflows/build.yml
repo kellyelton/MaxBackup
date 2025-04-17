@@ -75,13 +75,14 @@ jobs:
     - name: install wix toolset
       run: dotnet tool install --global wix
 
-    - name: install gitversion tool
-      run: dotnet tool install --global GitVersion.Tool
-
+    - name: Install GitVersion
+      uses: gittools/actions/gitversion/setup@v3.2.0
+      with:
+        versionSpec: '6.2.x'
 
     - name: Determine Version
       id: version
-      uses: gittools/actions/gitversion/execute@v0
+      uses: gittools/actions/gitversion/execute@v3.2.0
 
     - name: Use the version
       run: |
