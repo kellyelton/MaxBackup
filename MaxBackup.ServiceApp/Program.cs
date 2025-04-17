@@ -1,6 +1,10 @@
+using System.Runtime.Versioning;
 using MaxBackup.ServiceApp;
 using Microsoft.Extensions.Configuration.Json;
 using Serilog;
+
+// windows only
+[assembly:SupportedOSPlatform("windows")]
 
 IHost host = Host.CreateDefaultBuilder(args)
     .UseWindowsService(options => {
@@ -52,6 +56,9 @@ var fileproviders = config.Providers
 ;
 
 foreach (var provider in fileproviders) {
+    if (provider is null) continue;
+    if (provider.Source.FileProvider is null) continue;
+    if (provider.Source.Path is null) continue;
     var file = provider.Source.FileProvider.GetFileInfo(provider.Source.Path);
     logger.LogInformation("Config File: {file}", file.PhysicalPath);
 }
