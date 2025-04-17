@@ -21,6 +21,8 @@ namespace MaxBackup.ServiceApp
 
             while (!stoppingToken.IsCancellationRequested)
             {
+
+                // TODO: We should update the config from the config file more often then just after all jobs have ran.
                 var config = _backupConfigProvider.CurrentValue;
 
                 foreach (var job in config.Jobs)
