@@ -72,11 +72,8 @@ jobs:
       with:
         dotnet-version: 6.0.x
 
-    - name: install wix toolset
-      run: dotnet tool install --global wix
-
     - name: Install GitVersion
-      uses: gittools/actions/gitversion/setup@v3.2.0
+      uses: gittools/actions/gitversion/setup@v2.0.1
       with:
         versionSpec: '5.12.0'
 
@@ -91,6 +88,9 @@ jobs:
       run: |
         # powershell
         Write-Output VERSION ${{ steps.version.outputs.assemblySemVer }}
+
+    - name: install wix toolset
+      run: dotnet tool install --global wix
 
     - name: publish cli
       run: dotnet publish Max\Max.csproj -c Release
