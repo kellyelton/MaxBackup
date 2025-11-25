@@ -210,25 +210,12 @@ public class CliTestHelper : IAsyncLifetime, IDisposable
         };
 
         using var process = new Process { StartInfo = startInfo };
-        
-        var stdout = new StringBuilder();
-        var stderr = new StringBuilder();
-
-        process.OutputDataReceived += (_, e) =>
-        {
-            if (e.Data != null)
-                stdout.AppendLine(e.Data);
-        };
-        
-        process.ErrorDataReceived += (_, e) =>
-        {
-            if (e.Data != null)
-                stderr.AppendLine(e.Data);
-        };
 
         process.Start();
-        process.BeginOutputReadLine();
-        process.BeginErrorReadLine();
+        
+        // Read output synchronously to ensure we capture everything
+        var stdoutTask = process.StandardOutput.ReadToEndAsync();
+        var stderrTask = process.StandardError.ReadToEndAsync();
 
         var completed = await Task.Run(() => process.WaitForExit(30000)); // 30 second timeout
         
@@ -238,10 +225,14 @@ public class CliTestHelper : IAsyncLifetime, IDisposable
             throw new TimeoutException("CLI command timed out after 30 seconds");
         }
 
+        // Ensure streams are fully read
+        var stdout = await stdoutTask;
+        var stderr = await stderrTask;
+
         return new CliResult(
             process.ExitCode,
-            stdout.ToString().Trim(),
-            stderr.ToString().Trim()
+            stdout.Trim(),
+            stderr.Trim()
         );
     }
 
