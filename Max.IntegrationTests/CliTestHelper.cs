@@ -27,6 +27,14 @@ public class CliTestHelper : IAsyncLifetime, IDisposable
         
         _configFilePath = Path.Combine(_testDirectory, "testconfig.json");
         
+        // Check for CI environment variable first, then fall back to debug build paths
+        var ciExePath = Environment.GetEnvironmentVariable("MAX_CLI_PATH");
+        if (!string.IsNullOrEmpty(ciExePath) && File.Exists(ciExePath))
+        {
+            _maxExePath = ciExePath;
+            return;
+        }
+        
         // Find the max executable - look for the debug build
         var solutionDir = FindSolutionDirectory();
         
@@ -38,7 +46,7 @@ public class CliTestHelper : IAsyncLifetime, IDisposable
         };
         
         _maxExePath = possiblePaths.FirstOrDefault(File.Exists) 
-            ?? throw new InvalidOperationException($"Max executable not found. Searched paths:\n{string.Join("\n", possiblePaths)}\nPlease build the Max project first.");
+            ?? throw new InvalidOperationException($"Max executable not found. Searched paths:\n{string.Join("\n", possiblePaths)}\nSet MAX_CLI_PATH environment variable or build the Max project first.");
     }
 
     /// <summary>
