@@ -101,8 +101,12 @@ jobs:
 
     - name: Run tests
       env:
-        MAX_CLI_PATH: ${{ github.workspace }}\Max\bin\publish\win\max.dll
-      run: dotnet test ${{ env.Test_Project_Path }} --configuration Release --logger "trx;LogFileName=test-results.trx"
+        MAX_CLI_PATH: ${{ github.workspace }}/Max/bin/publish/win/max.dll
+      run: |
+        Write-Output "MAX_CLI_PATH: $env:MAX_CLI_PATH"
+        Write-Output "File exists: $(Test-Path $env:MAX_CLI_PATH)"
+        Get-ChildItem "${{ github.workspace }}/Max/bin/publish/win/" -ErrorAction SilentlyContinue
+        dotnet test ${{ env.Test_Project_Path }} --configuration Release --logger "trx;LogFileName=test-results.trx"
 
     - name: build installer
       run: dotnet build Max.Installer.Package\Max.Installer.Package.wixproj -c Release -p:Platform=x64
