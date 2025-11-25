@@ -8,7 +8,7 @@
 				Source="$(var.max.ProjectDir)bin\publish\win\max.exe"
 				KeyPath="true" />
 
-		  <Environment Id="PATH" Name="PATH" Value="[CLIINSTALLFOLDER]" Permanent="yes" Part="last" Action="set" System="yes" />
+		  <Environment Id="PATH" Name="PATH" Value="[CLIINSTALLFOLDER]" Permanent="no" Part="last" Action="set" System="yes" />
 
 		  <!-- Remove all files from the INSTALLFOLDER on uninstall -->
 		  <RemoveFile Id="CLIALLFILES" Name="*.*" On="both" />
