@@ -98,6 +98,20 @@ jobs:
         -o MaxBackup.ServiceApp\bin\publish\win -p:Platform=x64
         /p:AssemblyVersion=${{ steps.version.outputs.assemblySemVer }} /p:Version=${{ steps.version.outputs.assemblySemVer }}
 
+    - name: Verify test environment
+      run: |
+        Write-Output "MAX_CLI_PATH: $env:MAX_CLI_PATH"
+        if (-not $env:MAX_CLI_PATH) {
+          Write-Error "MAX_CLI_PATH environment variable is not set"
+          exit 1
+        }
+        if (-not (Test-Path $env:MAX_CLI_PATH)) {
+          Write-Error "CLI executable not found at: $env:MAX_CLI_PATH"
+          Get-ChildItem "${{ github.workspace }}/Max/bin/publish/win/" -ErrorAction SilentlyContinue
+          exit 1
+        }
+        Write-Output "CLI executable found at: $env:MAX_CLI_PATH"
+
     - name: Run tests
       run: dotnet test ${{ env.Test_Project_Path }} --configuration Release --logger "trx;LogFileName=test-results.trx"
 
