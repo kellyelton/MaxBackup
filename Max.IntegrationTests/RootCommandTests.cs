@@ -22,11 +22,13 @@ public class RootCommandTests : IAsyncLifetime
         var result = await _cli.RunMaxAsync();
 
         // Assert
-        // System.CommandLine shows help when no subcommand is provided
-        Assert.Equal(0, result.ExitCode);
+        // System.CommandLine 2.0 returns exit code 1 when "Required command was not provided"
+        // but still shows the help text
+        Assert.Equal(1, result.ExitCode);
         Assert.Contains("Max backup app for windows", result.StandardOutput);
         Assert.Contains("jobs", result.StandardOutput);
         Assert.Contains("service", result.StandardOutput);
+        Assert.Contains("Required command was not provided", result.AllOutput);
     }
 
     [Fact]
@@ -67,12 +69,12 @@ public class RootCommandTests : IAsyncLifetime
     [Fact]
     public async Task RootCommand_WithVerboseOption_IsAccepted()
     {
-        // Act - verbose alone without a subcommand still shows help
+        // Act - verbose alone without a subcommand still shows help with exit code 1
         var result = await _cli.RunMaxAsync("--verbose");
 
-        // Assert - option is accepted, help is shown
-        Assert.Equal(0, result.ExitCode);
-        Assert.Contains("Max backup app for windows", result.StandardOutput);
+        // Assert - System.CommandLine 2.0 returns 1 when required command is not provided
+        Assert.Equal(1, result.ExitCode);
+        Assert.Contains("Required command was not provided", result.AllOutput);
     }
 
     [Fact]
@@ -84,9 +86,9 @@ public class RootCommandTests : IAsyncLifetime
         // Act
         var result = await _cli.RunMaxAsync("--config-path", configPath);
 
-        // Assert - option is accepted, help is shown
-        Assert.Equal(0, result.ExitCode);
-        Assert.Contains("Max backup app for windows", result.StandardOutput);
+        // Assert - System.CommandLine 2.0 returns 1 when required command is not provided
+        Assert.Equal(1, result.ExitCode);
+        Assert.Contains("Required command was not provided", result.AllOutput);
     }
 
     [Fact]

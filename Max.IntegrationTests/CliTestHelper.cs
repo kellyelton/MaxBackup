@@ -30,11 +30,9 @@ public class CliTestHelper : IAsyncLifetime, IDisposable
         // Find the max executable - look for the debug build
         var solutionDir = FindSolutionDirectory();
         
-        // Try multiple possible paths (with and without RID subfolder)
+        // Only use net10.0 paths (with and without RID subfolder)
         var possiblePaths = new[]
         {
-            Path.Combine(solutionDir, "Max", "bin", "Debug", "net9.0", "win-x64", "max.dll"),
-            Path.Combine(solutionDir, "Max", "bin", "Debug", "net9.0", "max.dll"),
             Path.Combine(solutionDir, "Max", "bin", "Debug", "net10.0", "win-x64", "max.dll"),
             Path.Combine(solutionDir, "Max", "bin", "Debug", "net10.0", "max.dll"),
         };
