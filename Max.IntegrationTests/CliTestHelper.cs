@@ -38,11 +38,11 @@ public class CliTestHelper : IAsyncLifetime, IDisposable
         // Find the max executable - look for the debug build
         var solutionDir = FindSolutionDirectory();
         
-        // Only use net10.0 paths (with and without RID subfolder)
+        // Use exe paths (RID-specific build produces exe)
         var possiblePaths = new[]
         {
-            Path.Combine(solutionDir, "Max", "bin", "Debug", "net10.0", "win-x64", "max.dll"),
-            Path.Combine(solutionDir, "Max", "bin", "Debug", "net10.0", "max.dll"),
+            Path.Combine(solutionDir, "Max", "bin", "Debug", "net10.0", "win-x64", "max.exe"),
+            Path.Combine(solutionDir, "Max", "bin", "Debug", "net10.0", "max.exe"),
         };
         
         _maxExePath = possiblePaths.FirstOrDefault(File.Exists) 
@@ -198,13 +198,10 @@ public class CliTestHelper : IAsyncLifetime, IDisposable
     /// </summary>
     public async Task<CliResult> RunMaxAsync(params string[] args)
     {
-        var allArgs = new List<string> { _maxExePath };
-        allArgs.AddRange(args);
-        
         var startInfo = new ProcessStartInfo
         {
-            FileName = "dotnet",
-            Arguments = string.Join(" ", allArgs.Select(EscapeArgument)),
+            FileName = _maxExePath,
+            Arguments = string.Join(" ", args.Select(EscapeArgument)),
             RedirectStandardOutput = true,
             RedirectStandardError = true,
             UseShellExecute = false,

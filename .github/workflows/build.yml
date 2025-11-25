@@ -57,7 +57,7 @@ jobs:
     env:
       Solution_Name: MaxBackup.sln
       Test_Project_Path: Max.IntegrationTests\Max.IntegrationTests.csproj
-      MAX_CLI_PATH: ${{ github.workspace }}/Max/bin/publish/win/max.dll
+      MAX_CLI_PATH: ${{ github.workspace }}/Max/bin/publish/win/max.exe
 
     steps:
     - name: Checkout
