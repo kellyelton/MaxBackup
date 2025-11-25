@@ -72,13 +72,13 @@ jobs:
         dotnet-version: 10.0.x
 
     - name: Install GitVersion
-      uses: gittools/actions/gitversion/setup@v2.0.1
+      uses: gittools/actions/gitversion/setup@v4.0.0
       with:
-        versionSpec: '5.12.0'
+        versionSpec: '6.x'
 
     - name: Determine Version
       id: version
-      uses: gittools/actions/gitversion/execute@v2.0.1
+      uses: gittools/actions/gitversion/execute@v4.0.0
 
     - name: Use the version
       run: |
