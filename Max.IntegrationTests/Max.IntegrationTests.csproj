@@ -20,6 +20,7 @@
 
   <ItemGroup>
     <ProjectReference Include="..\Max\max.csproj" />
+    <ProjectReference Include="..\MaxBackup.Shared\MaxBackup.Shared.csproj" />
   </ItemGroup>
 
   <ItemGroup>

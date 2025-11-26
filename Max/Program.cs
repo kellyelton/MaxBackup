@@ -22,8 +22,12 @@
 // max job run "My Job" --wait --verbose --dry-run
 
 using System.CommandLine;
+using System.Runtime.Versioning;
 using Max;
 using max;
+
+// windows only
+[assembly:SupportedOSPlatform("windows")]
 
 // Max backup app for windows. This is the cli app that controls/configures the service.
 
@@ -46,8 +50,11 @@ rootCommand.Options.Add(configPathOption);
 // When root command is invoked without subcommand, the default help will be shown
 // (this is automatic in 2.0.0)
 
+rootCommand.Subcommands.Add(new RegisterCommand(verboseOption));
+rootCommand.Subcommands.Add(new UnregisterCommand(verboseOption));
+rootCommand.Subcommands.Add(new StatusCommand(verboseOption));
 rootCommand.Subcommands.Add(jobs_command);
-rootCommand.Subcommands.Add(new ServiceCommand());
+rootCommand.Subcommands.Add(new ServiceCommand(verboseOption));
 
 var parseResult = rootCommand.Parse(args);
 return await parseResult.InvokeAsync();

@@ -6,5 +6,11 @@
 				<Directory Id="CLIINSTALLFOLDER" Name="cli"/>
 			</Directory>
 		</StandardDirectory>
+		
+		<StandardDirectory Id="CommonAppDataFolder">
+			<Directory Id="MAXBACKUPDATAFOLDER" Name="MaxBackup">
+				<Directory Id="MAXBACKUPLOGSFOLDER" Name="logs"/>
+			</Directory>
+		</StandardDirectory>
 	</Fragment>
 </Wix>

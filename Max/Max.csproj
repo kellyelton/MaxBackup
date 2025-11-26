@@ -20,4 +20,7 @@
     <PackageReference Include="System.CommandLine" Version="2.0.0" />
     <PackageReference Include="System.ServiceProcess.ServiceController" Version="10.0.0" />
   </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\MaxBackup.Shared\MaxBackup.Shared.csproj" />
+  </ItemGroup>
 </Project>

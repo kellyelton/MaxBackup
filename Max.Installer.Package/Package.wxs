@@ -8,6 +8,7 @@
 		</Feature>
 		<Feature Id="BackupServiceFeature" Title="backup service">
 			<ComponentRef Id="MaxBackupServiceComponent" />
+			<ComponentRef Id="ProgramDataFolderComponent" />
 		</Feature>
 		<Feature Id="CliAppFeature" Title="cli app">
 			<ComponentRef Id="MaxCliComponent" />

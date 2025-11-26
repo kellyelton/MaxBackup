@@ -39,4 +39,7 @@
     <PackageReference Include="Serilog.Sinks.File" Version="7.0.0" />
     <PackageReference Include="Serilog.Sinks.Seq" Version="9.0.0" />
   </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\MaxBackup.Shared\MaxBackup.Shared.csproj" />
+  </ItemGroup>
 </Project>
