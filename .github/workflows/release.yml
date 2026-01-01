@@ -103,7 +103,7 @@ jobs:
       if: github.ref == 'refs/heads/master'
       uses: vedantmgoyal2009/winget-releaser@v2
       with:
-        identifier: KellyElton.MaxBackup
+        identifier: KellyElton.Max.Backup
         installers-regex: '.*\.msi$'
         token: ${{ secrets.WINGET_TOKEN }}
         release-tag: ${{ steps.version.outputs.majorMinorPatch }}
@@ -112,7 +112,7 @@ jobs:
       if: github.ref == 'refs/heads/test'
       uses: vedantmgoyal2009/winget-releaser@v2
       with:
-        identifier: KellyElton.MaxBackup
+        identifier: KellyElton.Max.Backup
         installers-regex: '.*\.msi$'
         token: ${{ secrets.WINGET_TOKEN }}
         release-tag: ${{ steps.version.outputs.majorMinorPatch }}
