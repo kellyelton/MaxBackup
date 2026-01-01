@@ -1,5 +1,5 @@
 # GitVersion configuration - uses tags for versioning
-mode: ContinuousDeployment
+mode: ContinuousDelivery
 
 branches:
   main:
@@ -7,11 +7,13 @@ branches:
     label: ''
     increment: Patch
     is-main-branch: true
+    pre-release-weight: 55000
   test:
     regex: ^test$
-    mode: ContinuousDeployment
+    mode: ContinuousDelivery
     label: preview
     increment: Patch
+    pre-release-weight: 30000
     source-branches:
       - main
   unknown:
@@ -20,3 +22,4 @@ branches:
     increment: Patch
     source-branches:
       - main
+      - test
