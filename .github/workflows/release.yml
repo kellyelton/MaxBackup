@@ -112,9 +112,8 @@ jobs:
       if: github.ref == 'refs/heads/test'
       uses: vedantmgoyal2009/winget-releaser@v2
       with:
-        identifier: KellyElton.MaxBackup.Preview
+        identifier: KellyElton.MaxBackup
         installers-regex: '.*\.msi$'
         token: ${{ secrets.WINGET_TOKEN }}
         release-tag: ${{ steps.version.outputs.majorMinorPatch }}
         version: ${{ steps.version.outputs.fullSemVer }}
-        is-preview: true
