@@ -82,9 +82,9 @@ jobs:
       if: github.ref == 'refs/heads/test'
       with:
         token: ${{ secrets.GITHUB_TOKEN }}
-        tag_name: ${{ steps.version.outputs.assemblySemVer }}
+        tag_name: ${{ steps.version.outputs.majorMinorPatch }}
         prerelease: true
-        name: "Preview v${{ steps.version.outputs.assemblySemVer }}"
+        name: "Preview v${{ steps.version.outputs.majorMinorPatch }}"
         files: Max.Installer.Package/bin/x64/Release/en-US/Max.Installer.Package.msi
         generate_release_notes: true
 
@@ -93,8 +93,8 @@ jobs:
       if: github.ref == 'refs/heads/master'
       with:
         token: ${{ secrets.GITHUB_TOKEN }}
-        tag_name: ${{ steps.version.outputs.assemblySemVer }}
+        tag_name: ${{ steps.version.outputs.majorMinorPatch }}
         prerelease: false
-        name: "v${{ steps.version.outputs.assemblySemVer }}"
+        name: "v${{ steps.version.outputs.majorMinorPatch }}"
         files: Max.Installer.Package/bin/x64/Release/en-US/Max.Installer.Package.msi
         generate_release_notes: true
