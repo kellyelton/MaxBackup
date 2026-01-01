@@ -1,16 +1,22 @@
 # GitVersion configuration - uses tags for versioning
-workflow: GitHubFlow/v1
 mode: ContinuousDeployment
 
 branches:
   main:
     regex: ^master$|^main$
     label: ''
+    increment: Patch
     is-main-branch: true
   test:
     regex: ^test$
     mode: ContinuousDeployment
     label: preview
+    increment: Patch
+    source-branches:
+      - main
+  unknown:
+    regex: '.*'
+    label: '{BranchName}'
     increment: Patch
     source-branches:
       - main
