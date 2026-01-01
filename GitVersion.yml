@@ -9,4 +9,8 @@ branches:
     is-main-branch: true
   test:
     regex: ^test$
+    mode: ContinuousDeployment
     label: preview
+    increment: Patch
+    source-branches:
+      - main
