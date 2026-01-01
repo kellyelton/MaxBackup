@@ -1,0 +1,100 @@
+name: Release
+
+on:
+  push:
+    branches: [ "master", "test" ]
+
+# Ensure releases run synchronously - only one at a time across all branches
+concurrency:
+  group: release
+  cancel-in-progress: false
+
+jobs:
+  build-and-release:
+    runs-on: windows-latest
+
+    env:
+      Solution_Name: MaxBackup.sln
+      Test_Project_Path: Max.IntegrationTests\Max.IntegrationTests.csproj
+      MAX_CLI_PATH: ${{ github.workspace }}/Max/bin/publish/win/max.exe
+
+    steps:
+    - name: Checkout
+      uses: actions/checkout@v6
+      with:
+        fetch-depth: 0
+
+    - name: Install .NET Core
+      uses: actions/setup-dotnet@v5
+      with:
+        dotnet-version: 10.0.x
+
+    - name: Install GitVersion
+      uses: gittools/actions/gitversion/setup@v4.2.0
+      with:
+        versionSpec: '6.4.x'
+
+    - name: Determine Version
+      id: version
+      uses: gittools/actions/gitversion/execute@v4.2.0
+
+    - name: Display version
+      run: Write-Output "VERSION ${{ steps.version.outputs.assemblySemVer }}"
+
+    - name: Install WiX Toolset
+      run: dotnet tool install --global wix
+
+    - name: Publish CLI
+      run: dotnet publish Max\Max.csproj -c Release
+        -o Max\bin\publish\win -p:Platform=x64
+        /p:AssemblyVersion=${{ steps.version.outputs.assemblySemVer }} /p:Version=${{ steps.version.outputs.assemblySemVer }}
+
+    - name: Publish Service
+      run: dotnet publish MaxBackup.ServiceApp\MaxBackup.ServiceApp.csproj -c Release
+        -o MaxBackup.ServiceApp\bin\publish\win -p:Platform=x64
+        /p:AssemblyVersion=${{ steps.version.outputs.assemblySemVer }} /p:Version=${{ steps.version.outputs.assemblySemVer }}
+
+    - name: Verify test environment
+      run: |
+        Write-Output "MAX_CLI_PATH: $env:MAX_CLI_PATH"
+        if (-not (Test-Path $env:MAX_CLI_PATH)) {
+          Write-Error "CLI executable not found at: $env:MAX_CLI_PATH"
+          Get-ChildItem "${{ github.workspace }}/Max/bin/publish/win/" -ErrorAction SilentlyContinue
+          exit 1
+        }
+        Write-Output "CLI executable found at: $env:MAX_CLI_PATH"
+
+    - name: Run tests
+      run: dotnet test ${{ env.Test_Project_Path }} --configuration Release --logger "trx;LogFileName=test-results.trx"
+
+    - name: Build installer
+      run: dotnet build Max.Installer.Package\Max.Installer.Package.wixproj -c Release -p:Platform=x64
+        /p:AssemblyVersion=${{ steps.version.outputs.assemblySemVer }} /p:Version=${{ steps.version.outputs.assemblySemVer }}
+
+    - name: Upload build artifacts
+      uses: actions/upload-artifact@v6
+      with:
+        name: MSI Package
+        path: Max.Installer.Package\bin\x64\Release\en-US\Max.Installer.Package.msi
+
+    - name: Create 'preview' Release
+      uses: softprops/action-gh-release@v2
+      if: github.ref == 'refs/heads/test'
+      with:
+        token: ${{ secrets.GITHUB_TOKEN }}
+        tag_name: ${{ steps.version.outputs.assemblySemVer }}
+        prerelease: true
+        name: "Preview v${{ steps.version.outputs.assemblySemVer }}"
+        files: Max.Installer.Package/bin/x64/Release/en-US/Max.Installer.Package.msi
+        generate_release_notes: true
+
+    - name: Create 'stable' Release
+      uses: softprops/action-gh-release@v2
+      if: github.ref == 'refs/heads/master'
+      with:
+        token: ${{ secrets.GITHUB_TOKEN }}
+        tag_name: ${{ steps.version.outputs.assemblySemVer }}
+        prerelease: false
+        name: "v${{ steps.version.outputs.assemblySemVer }}"
+        files: Max.Installer.Package/bin/x64/Release/en-US/Max.Installer.Package.msi
+        generate_release_notes: true
