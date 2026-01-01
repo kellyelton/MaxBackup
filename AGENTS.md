@@ -300,5 +300,5 @@ The PR will automatically re-run checks after pushing new commits.
 
 - **Testing**: Always ensure tests pass locally before pushing:
   ```bash
-  dotnet test Max.IntegrationTests\Max.IntegrationTests.csproj --configuration Release
+  dotnet test Max.IntegrationTests/Max.IntegrationTests.csproj --configuration Release
   ```
