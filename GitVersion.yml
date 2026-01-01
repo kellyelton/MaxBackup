@@ -1,9 +1,12 @@
 # GitVersion configuration - uses tags for versioning
+workflow: GitHubFlow/v1
 mode: ContinuousDeployment
 
 branches:
-  master:
+  main:
+    regex: ^master$|^main$
     label: ''
-    is-mainline: true
+    is-main-branch: true
   test:
+    regex: ^test$
     label: preview
