@@ -3,7 +3,7 @@ mode: ContinuousDeployment
 
 branches:
   master:
-    tag: ''
+    label: ''
     is-mainline: true
   test:
-    tag: preview
+    label: preview
