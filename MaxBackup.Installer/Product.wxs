@@ -1,0 +1,46 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<Wix xmlns="http://wixtoolset.org/schemas/v4/wxs">
+  <Package Name="MaxBackup"
+           Manufacturer="Kelly Elton"
+           Version="1.0.0.0"
+           UpgradeCode="A1B2C3D4-E5F6-7890-ABCD-EF1234567890">
+    
+    <MajorUpgrade DowngradeErrorMessage="A newer version of MaxBackup is already installed." />
+    
+    <MediaTemplate EmbedCab="yes" />
+
+    <Feature Id="ProductFeature" Title="MaxBackup Service" Level="1">
+      <ComponentGroupRef Id="ProductComponents" />
+    </Feature>
+  </Package>
+
+  <Fragment>
+    <StandardDirectory Id="ProgramFiles6432Folder">
+      <Directory Id="INSTALLFOLDER" Name="MaxBackup" />
+    </StandardDirectory>
+  </Fragment>
+
+  <Fragment>
+    <ComponentGroup Id="ProductComponents" Directory="INSTALLFOLDER">
+      <!-- Service executable and dependencies will be added here -->
+      <Component Id="MainExecutable" Guid="B2C3D4E5-F6A7-8901-BCDE-F12345678901">
+        <File Id="MaxBackupServiceExe" Source="$(var.MaxBackup.ServiceApp.TargetPath)" KeyPath="yes" />
+        
+        <ServiceInstall Id="MaxBackupService"
+                       Name="MaxBackupService"
+                       DisplayName="MaxBackup Service"
+                       Description="Backup service for MaxBackup"
+                       Type="ownProcess"
+                       Start="auto"
+                       Account="LocalSystem"
+                       ErrorControl="normal" />
+        
+        <ServiceControl Id="StartMaxBackupService"
+                       Name="MaxBackupService"
+                       Start="install"
+                       Stop="both"
+                       Remove="uninstall" />
+      </Component>
+    </ComponentGroup>
+  </Fragment>
+</Wix>

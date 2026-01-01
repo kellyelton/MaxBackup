@@ -5,6 +5,8 @@ VisualStudioVersion = 17.2.32519.379
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "MaxBackup.ServiceApp", "MaxBackup.ServiceApp\MaxBackup.ServiceApp.csproj", "{2B1A6765-0027-46E1-BE5D-287C4430701C}"
 EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "MaxBackup.Installer", "MaxBackup.Installer\MaxBackup.Installer.wixproj", "{3C2B7876-1138-57F2-CF6E-398D5541802D}"
+EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Root", "Root", "{C9BE917E-4E68-4B21-B683-E7801E9C8D4A}"
 	ProjectSection(SolutionItems) = preProject
 		LICENSE = LICENSE
@@ -20,6 +22,10 @@ Global
 		{2B1A6765-0027-46E1-BE5D-287C4430701C}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{2B1A6765-0027-46E1-BE5D-287C4430701C}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{2B1A6765-0027-46E1-BE5D-287C4430701C}.Release|Any CPU.Build.0 = Release|Any CPU
+		{3C2B7876-1138-57F2-CF6E-398D5541802D}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{3C2B7876-1138-57F2-CF6E-398D5541802D}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{3C2B7876-1138-57F2-CF6E-398D5541802D}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{3C2B7876-1138-57F2-CF6E-398D5541802D}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
