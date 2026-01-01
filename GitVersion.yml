@@ -1,0 +1,9 @@
+# GitVersion configuration - uses tags for versioning
+mode: ContinuousDeployment
+
+branches:
+  master:
+    tag: ''
+    is-mainline: true
+  test:
+    tag: preview
