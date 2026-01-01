@@ -21,7 +21,9 @@ msiexec /i MaxBackupInstaller.msi SERVICEACCOUNT="DOMAIN\Username" SERVICEPASSWO
 
 ## Building the Installer
 
-To build the installer MSI:
+**Note**: The WiX Toolset requires Windows to build. Building on non-Windows platforms will skip the installer project.
+
+To build the installer MSI on Windows:
 
 ```bash
 dotnet build MaxBackup.Installer/MaxBackup.Installer.wixproj -c Release
@@ -29,7 +31,13 @@ dotnet build MaxBackup.Installer/MaxBackup.Installer.wixproj -c Release
 
 The output MSI will be located in the `bin/Release` directory.
 
+To build only the service without the installer:
+
+```bash
+dotnet build MaxBackup.ServiceApp/MaxBackup.ServiceApp.csproj -c Release
+```
+
 ## Requirements
 
-- WiX Toolset v4.0.5 or higher
+- WiX Toolset v4.0.5 or higher (Windows only)
 - .NET SDK 6.0 or higher
