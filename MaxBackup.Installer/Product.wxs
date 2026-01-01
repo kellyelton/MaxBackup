@@ -9,6 +9,10 @@
     
     <MediaTemplate EmbedCab="yes" />
 
+    <!-- Service account properties (can be specified during installation) -->
+    <Property Id="SERVICEACCOUNT" Value="NT AUTHORITY\LocalService" />
+    <Property Id="SERVICEPASSWORD" Hidden="yes" />
+
     <Feature Id="ProductFeature" Title="MaxBackup Service" Level="1">
       <ComponentGroupRef Id="ProductComponents" />
     </Feature>
@@ -32,7 +36,8 @@
                        Description="Backup service for MaxBackup"
                        Type="ownProcess"
                        Start="auto"
-                       Account="LocalSystem"
+                       Account="[SERVICEACCOUNT]"
+                       Password="[SERVICEPASSWORD]"
                        ErrorControl="normal" />
         
         <ServiceControl Id="StartMaxBackupService"
