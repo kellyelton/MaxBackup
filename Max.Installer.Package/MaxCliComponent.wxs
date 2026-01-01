@@ -1,0 +1,22 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<Wix xmlns="http://wixtoolset.org/schemas/v4/wxs">
+  <Fragment>
+	  <Component Id="MaxCliComponent" Directory="CLIINSTALLFOLDER">
+		  <!-- Copies the max.exe file using the
+					 project reference preprocessor variables -->
+		  <File Id="max.exe"
+				Source="$(var.max.ProjectDir)bin\publish\win\max.exe"
+				KeyPath="true" />
+
+		  <File Id="Default_maxbackupconfig_cli.json"
+				Source="$(var.MaxBackup.ServiceApp.ProjectDir)bin\publish\win\Default_maxbackupconfig.json"
+				Name="Default_maxbackupconfig.json"
+				KeyPath="false" />
+
+		  <Environment Id="PATH" Name="PATH" Value="[CLIINSTALLFOLDER]" Permanent="no" Part="last" Action="set" System="yes" />
+
+		  <!-- Remove all files from the INSTALLFOLDER on uninstall -->
+		  <RemoveFile Id="CLIALLFILES" Name="*.*" On="both" />
+	  </Component>
+  </Fragment>
+</Wix>

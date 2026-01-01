@@ -1,36 +1,37 @@
+using System.Runtime.Versioning;
 using MaxBackup.ServiceApp;
 using Microsoft.Extensions.Configuration.Json;
 using Serilog;
+
+// windows only
+[assembly:SupportedOSPlatform("windows")]
 
 IHost host = Host.CreateDefaultBuilder(args)
     .UseWindowsService(options => {
         options.ServiceName = "MaxBackup";
     })
-    .ConfigureAppConfiguration((context, config) => {
-        if (context.HostingEnvironment.IsProduction()) {
-            var configpath = Environment.GetFolderPath(Environment.SpecialFolder.UserProfile);
-            configpath = Path.Combine(configpath, "maxbackupconfig.json");
-
-            config.AddJsonFile(configpath, true, true);
-        }
-    })
     .ConfigureHostConfiguration(config => {
         config.AddEnvironmentVariables("MAXBACKUP_");
     })
     .ConfigureServices(services => {
-        services
-            .AddOptions<BackupConfig>()
-            .BindConfiguration("Backup")
-            .ValidateDataAnnotations()
-        ;
-        services.AddHostedService<Worker>();
+        // Register service-level components
+        services.AddSingleton<ServiceConfigManager>();
+        services.AddSingleton<UserWorkerManager>();
+        services.AddHostedService(sp => sp.GetRequiredService<UserWorkerManager>());
+        services.AddHostedService<PipeServer>();
     })
     .ConfigureLogging((context, logging) => {
         logging.ClearProviders();
 
+        // Service-level logging to C:\ProgramData\MaxBackup\logs\service.log
         var logger = new LoggerConfiguration()
-            .ReadFrom
-            .Configuration(context.Configuration)
+            .MinimumLevel.Information()
+            .Enrich.FromLogContext()
+            .WriteTo.Console(restrictedToMinimumLevel: Serilog.Events.LogEventLevel.Information)
+            .WriteTo.File(
+                @"C:\ProgramData\MaxBackup\logs\service.log",
+                rollingInterval: RollingInterval.Day,
+                restrictedToMinimumLevel: Serilog.Events.LogEventLevel.Information)
             .CreateLogger()
         ;
 
@@ -40,21 +41,14 @@ IHost host = Host.CreateDefaultBuilder(args)
 
 var logger = host.Services.GetRequiredService<ILogger<IHost>>();
 
-var config = (ConfigurationRoot)host.Services.GetRequiredService<IConfiguration>();
-
 var env = host.Services.GetRequiredService<IHostEnvironment>();
 
+// Ensure log directory exists
+Directory.CreateDirectory(@"C:\ProgramData\MaxBackup\logs");
+
+logger.LogInformation("MaxBackup Service starting");
 logger.LogInformation("Environment: {env}", env.EnvironmentName);
-
-var fileproviders = config.Providers
-    .OfType<JsonConfigurationProvider>()
-    .ToArray()
-;
-
-foreach (var provider in fileproviders) {
-    logger.LogInformation("Config File: {file}", provider.Source.Path);
-}
-
-logger.LogInformation("Running");
+logger.LogInformation("Service config location: C:\\ProgramData\\MaxBackup\\config.json");
+logger.LogInformation("Pipe name: \\\\.\\pipe\\MaxBackupPipe");
 
 await host.RunAsync();

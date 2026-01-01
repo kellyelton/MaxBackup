@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<Wix xmlns="http://wixtoolset.org/schemas/v4/wxs">
+	<Fragment>
+		<Component Id="ProgramDataFolderComponent" Directory="MAXBACKUPDATAFOLDER" Guid="BE347DD7-26CD-4E54-8EEA-FA9F69BD7C0D">
+			<!-- Create the MaxBackup ProgramData folder -->
+			<CreateFolder />
+			
+			<!-- Create the logs subfolder -->
+			<CreateFolder Directory="MAXBACKUPLOGSFOLDER" />
+		</Component>
+	</Fragment>
+</Wix>
