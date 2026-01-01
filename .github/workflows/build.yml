@@ -72,13 +72,13 @@ jobs:
         dotnet-version: 10.0.x
 
     - name: Install GitVersion
-      uses: gittools/actions/gitversion/setup@v4.0.0
+      uses: gittools/actions/gitversion/setup@v4.2.0
       with:
-        versionSpec: '6.x'
+        versionSpec: '6.4.x'
 
     - name: Determine Version
       id: version
-      uses: gittools/actions/gitversion/execute@v4.0.0
+      uses: gittools/actions/gitversion/execute@v4.2.0
 
     - name: Use the version
       run: |
@@ -127,23 +127,25 @@ jobs:
         path: Max.Installer.Package\bin\x64\Release\en-US\Max.Installer.Package.msi
 
     - name: Create 'preview' Release v${{ steps.version.outputs.assemblySemVer }}
-      uses: "marvinpinto/action-automatic-releases@latest"
+      uses: softprops/action-gh-release@v2
       if: github.ref == 'refs/heads/test'
       with:
-        repo_token: "${{ secrets.GITHUB_TOKEN }}"
-        automatic_release_tag: "${{ steps.version.outputs.assemblySemVer }}"
+        token: ${{ secrets.GITHUB_TOKEN }}
+        tag_name: ${{ steps.version.outputs.assemblySemVer }}
         prerelease: true
-        title: "Preview v${{ steps.version.outputs.assemblySemVer }}"
-        files: "Max.Installer.Package/bin/x64/Release/en-US/Max.Installer.Package.msi"
+        name: "Preview v${{ steps.version.outputs.assemblySemVer }}"
+        files: Max.Installer.Package/bin/x64/Release/en-US/Max.Installer.Package.msi
+        generate_release_notes: true
   
     - name: Create 'stable' Release v${{ steps.version.outputs.assemblySemVer }}
-      uses: "marvinpinto/action-automatic-releases@latest"
+      uses: softprops/action-gh-release@v2
       if: github.ref == 'refs/heads/master'
       with:
-        repo_token: "${{ secrets.GITHUB_TOKEN }}"
-        automatic_release_tag: "${{ steps.version.outputs.assemblySemVer }}"
+        token: ${{ secrets.GITHUB_TOKEN }}
+        tag_name: ${{ steps.version.outputs.assemblySemVer }}
         prerelease: false
-        title: "v${{ steps.version.outputs.assemblySemVer }}"
-        files: "Max.Installer.Package/bin/x64/Release/en-US/Max.Installer.Package.msi"
+        name: "v${{ steps.version.outputs.assemblySemVer }}"
+        files: Max.Installer.Package/bin/x64/Release/en-US/Max.Installer.Package.msi
+        generate_release_notes: true
 
 #D:\a\MaxBackup\MaxBackup\Max.Installer.Package\bin\x64\Release\en-US\Max.Installer.Package.msi
