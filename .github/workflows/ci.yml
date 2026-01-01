@@ -8,6 +8,9 @@ jobs:
   build-and-test:
     runs-on: windows-latest
 
+    env:
+      MAX_CLI_PATH: ${{ github.workspace }}/Max/bin/publish/win/max.exe
+
     steps:
     - name: Checkout
       uses: actions/checkout@v6
@@ -20,11 +23,11 @@ jobs:
     - name: Install WiX Toolset
       run: dotnet tool install --global wix
 
-    - name: Build CLI
-      run: dotnet build Max\Max.csproj -c Release -p:Platform=x64
+    - name: Publish CLI
+      run: dotnet publish Max\Max.csproj -c Release -o Max\bin\publish\win -p:Platform=x64
 
-    - name: Build Service
-      run: dotnet build MaxBackup.ServiceApp\MaxBackup.ServiceApp.csproj -c Release -p:Platform=x64
+    - name: Publish Service
+      run: dotnet publish MaxBackup.ServiceApp\MaxBackup.ServiceApp.csproj -c Release -o MaxBackup.ServiceApp\bin\publish\win -p:Platform=x64
 
     - name: Run tests
       run: dotnet test Max.IntegrationTests\Max.IntegrationTests.csproj --configuration Release --logger "trx;LogFileName=test-results.trx"
