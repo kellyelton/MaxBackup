@@ -98,3 +98,23 @@ jobs:
         name: "v${{ steps.version.outputs.majorMinorPatch }}"
         files: Max.Installer.Package/bin/x64/Release/en-US/Max.Installer.Package.msi
         generate_release_notes: true
+
+    - name: Submit to WinGet (Stable)
+      if: github.ref == 'refs/heads/master'
+      uses: vedantmgoyal2009/winget-releaser@v2
+      with:
+        identifier: KellyElton.MaxBackup
+        installers-regex: '.*\.msi$'
+        token: ${{ secrets.WINGET_TOKEN }}
+        release-tag: ${{ steps.version.outputs.majorMinorPatch }}
+
+    - name: Submit to WinGet (Preview)
+      if: github.ref == 'refs/heads/test'
+      uses: vedantmgoyal2009/winget-releaser@v2
+      with:
+        identifier: KellyElton.MaxBackup.Preview
+        installers-regex: '.*\.msi$'
+        token: ${{ secrets.WINGET_TOKEN }}
+        release-tag: ${{ steps.version.outputs.majorMinorPatch }}
+        version: ${{ steps.version.outputs.fullSemVer }}
+        is-preview: true
