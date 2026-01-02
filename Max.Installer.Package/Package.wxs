@@ -1,5 +1,5 @@
 ﻿<Wix xmlns="http://wixtoolset.org/schemas/v4/wxs">
-	<Package Name="max backup" Manufacturer="Kelly Elton" Version="1.0.0.0" UpgradeCode="45c08de6-4c20-45ba-922d-24fe01d35b3c" Scope="perMachine">
+	<Package Name="max backup" Manufacturer="Kelly Elton" Version="!(bind.FileVersion.max.exe)" UpgradeCode="45c08de6-4c20-45ba-922d-24fe01d35b3c" Scope="perMachine">
 		<MediaTemplate EmbedCab="yes"/>
 		<MajorUpgrade DowngradeErrorMessage="!(loc.DowngradeError)" />
 
