@@ -52,27 +52,28 @@ Never lose work - always stash first!
 5. **`<wait on user>`** - Ask user to review changes before committing (skip if user explicitly said to ship without review)
 6. Build and run unit tests locally - if either fail, go back to step 4
 7. Commit changes
-8. `git switch test && git pull --ff-only origin test` - Get latest test
-9. `git merge feature/your-feature --no-edit && git push origin test` - Merge to test
-10. Wait for CI workflow on test branch:
+8. `git push origin feature/your-feature` - Push feature branch to origin
+9. `git switch test && git pull --ff-only origin test` - Get latest test
+10. `git merge feature/your-feature --no-edit && git push origin test` - Merge to test
+11. Wait for CI workflow on test branch:
    ```powershell
    gh run list --branch test --limit 3 --json databaseId,status,conclusion,workflowName
    gh run watch <run-id>
    ```
    - If CI fails: go back to step 4 to fix the issue
    - If CI succeeds: proceed to next step
-11. **`<wait on user>`** - Ask user if ready to create PR
-12. Create PR from feature branch to master
-13. Wait for CI workflow on PR:
+12. **`<wait on user>`** - Ask user if ready to create PR
+13. Create PR from feature branch to master
+14. Wait for CI workflow on PR:
     ```powershell
     gh run list --branch feature/your-feature --limit 3 --json databaseId,status,conclusion,workflowName
     gh run watch <run-id>
     ```
     - If CI fails: go back to step 4 to fix the issue
     - If CI succeeds: proceed to next step
-14. **`<wait on user>`** - Ask user if ready to merge
-15. Merge PR: `gh pr merge <number> --merge`
-16. Wait for Release workflow on master (skipped for docs-only changes)
+15. **`<wait on user>`** - Ask user if ready to merge
+16. Merge PR: `gh pr merge <number> --merge`
+17. Wait for Release workflow on master (skipped for docs-only changes)
     - If user requested no release: wait for workflow to start, then cancel it:
       ```powershell
       gh run list --branch master --limit 3 --json databaseId,status,workflowName
@@ -81,8 +82,8 @@ Never lose work - always stash first!
     - If releasing: wait for workflow to complete
       - If Release fails: go back to step 4 to fix the issue
       - If Release succeeds: proceed to next step
-17. Verify stable release 🎉
-18. Clean up:
+18. Verify stable release 🎉
+19. Clean up:
 
 ⚠️ **IMPORTANT**: When falling back to step 4, all previous user approvals are invalidated. You must get fresh approval at each `<wait on user>` checkpoint again.
     ```powershell
