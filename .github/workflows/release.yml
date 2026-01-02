@@ -2,7 +2,7 @@ name: Release
 
 on:
   push:
-    branches: [ "master", "test" ]
+    branches: [ "master" ]
     paths-ignore:
       - '**.md'
       - 'LICENSE'
@@ -82,20 +82,8 @@ jobs:
         name: MSI Package
         path: Max.Installer.Package\bin\x64\Release\en-US\Max.Installer.Package.msi
 
-    - name: Create 'preview' Release
+    - name: Create Release
       uses: softprops/action-gh-release@v2
-      if: github.ref == 'refs/heads/test'
-      with:
-        token: ${{ secrets.GITHUB_TOKEN }}
-        tag_name: ${{ steps.version.outputs.majorMinorPatch }}
-        prerelease: true
-        name: "Preview v${{ steps.version.outputs.majorMinorPatch }}"
-        files: Max.Installer.Package/bin/x64/Release/en-US/Max.Installer.Package.msi
-        generate_release_notes: true
-
-    - name: Create 'stable' Release
-      uses: softprops/action-gh-release@v2
-      if: github.ref == 'refs/heads/master'
       with:
         token: ${{ secrets.GITHUB_TOKEN }}
         tag_name: ${{ steps.version.outputs.majorMinorPatch }}
@@ -104,21 +92,10 @@ jobs:
         files: Max.Installer.Package/bin/x64/Release/en-US/Max.Installer.Package.msi
         generate_release_notes: true
 
-    - name: Submit to WinGet (Stable)
-      if: github.ref == 'refs/heads/master'
+    - name: Submit to WinGet
       uses: vedantmgoyal2009/winget-releaser@v2
       with:
         identifier: KellyElton.Max.Backup
         installers-regex: '.*\.msi$'
         token: ${{ secrets.WINGET_TOKEN }}
         release-tag: ${{ steps.version.outputs.majorMinorPatch }}
-
-    - name: Submit to WinGet (Preview)
-      if: github.ref == 'refs/heads/test'
-      uses: vedantmgoyal2009/winget-releaser@v2
-      with:
-        identifier: KellyElton.Max.Backup
-        installers-regex: '.*\.msi$'
-        token: ${{ secrets.WINGET_TOKEN }}
-        release-tag: ${{ steps.version.outputs.majorMinorPatch }}
-        version: ${{ steps.version.outputs.fullSemVer }}
