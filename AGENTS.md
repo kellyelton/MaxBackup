@@ -71,7 +71,7 @@ Never lose work - always stash first!
     - If CI fails: go back to step 4 to fix the issue
     - If CI succeeds: proceed to next step
 14. **`<wait on user>`** - Ask user if ready to merge
-15. Merge PR: `gh pr merge <number> --rebase`
+15. Merge PR: `gh pr merge <number> --merge`
 16. Wait for Release workflow on master (skipped for docs-only changes)
     - If user requested no release: wait for workflow to start, then cancel it:
       ```powershell
@@ -142,7 +142,7 @@ gh run watch <run-id>
 
 # PRs
 gh pr create --base master --head feature/name --title "Title" --body "Body"
-gh pr merge <number> --rebase
+gh pr merge <number> --merge
 
 # Releases
 gh release list --limit 3
