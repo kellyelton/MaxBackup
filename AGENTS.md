@@ -13,7 +13,7 @@ Look at which branch you're on. If you're not on a new feature branch, DO NOT ma
 ### Step 1: Get on master and sync with origin
 ```powershell
 git switch master
-git pull origin master
+git pull --ff-only origin master
 ```
 ⚠️ **CRITICAL**: Master MUST be up to date with origin before creating a branch, or you WILL have merge conflicts later!
 
@@ -31,7 +31,7 @@ Only after completing steps 0-2.
 ```powershell
 git stash                              # Save your changes
 git switch master                      # Go to master
-git pull origin master                 # Sync with origin
+git pull --ff-only origin master       # Sync with origin
 git switch -c feature/correct-branch   # Create correct branch
 git stash pop                          # Restore your changes
 ```
@@ -46,10 +46,10 @@ Never lose work - always stash first!
 ## Workflow for Changes
 
 1. `git status` - Check where you are
-2. `git switch master && git pull origin master` - Get latest master (MUST sync with origin!)
+2. `git switch master && git pull --ff-only origin master` - Get latest master (MUST sync with origin!)
 3. `git switch -c feature/your-feature` - Create feature branch from master
 4. Make changes and commit
-5. `git switch test && git pull origin test` - Get latest test
+5. `git switch test && git pull --ff-only origin test` - Get latest test
 6. `git merge feature/your-feature && git push origin test` - Merge to test
 7. Wait for Release workflow (list runs, pick correct one, watch it)
    - ℹ️ If only markdown/docs changed, Release workflow will be skipped automatically
@@ -61,6 +61,11 @@ Never lose work - always stash first!
 13. Merge PR: `gh pr merge <number> --rebase`
 14. Wait for Release workflow on master (skipped for docs-only changes)
 15. Verify stable release 🎉
+16. Clean up:
+    ```powershell
+    git switch master && git pull --ff-only origin master   # Get merged changes
+    git branch -d feature/your-feature            # Delete local feature branch
+    ```
 
 ## Critical Rules
 
@@ -105,7 +110,7 @@ git switch -c feature/name           # Create and switch to new branch
 git switch -                         # Switch to previous branch
 
 # Recover from wrong branch
-git stash && git switch master && git pull origin master && git switch -c feature/name && git stash pop
+git stash && git switch master && git pull --ff-only origin master && git switch -c feature/name && git stash pop
 
 # Workflow runs
 gh run list --limit 5
