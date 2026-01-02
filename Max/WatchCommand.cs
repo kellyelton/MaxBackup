@@ -6,7 +6,9 @@ namespace Max;
 
 public partial class WatchCommand : Command
 {
-    private static readonly string ServiceLogPath = @"C:\ProgramData\MaxBackup\logs";
+    private static readonly string ServiceLogPath = Path.Combine(
+        Environment.GetFolderPath(Environment.SpecialFolder.CommonApplicationData),
+        "MaxBackup", "logs");
     private readonly Option<bool> _verboseOption;
     private readonly Option<int> _tailLinesOption;
     private readonly Option<bool> _userLogOption;

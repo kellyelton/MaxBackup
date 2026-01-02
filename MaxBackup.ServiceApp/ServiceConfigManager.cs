@@ -4,8 +4,10 @@ namespace MaxBackup.ServiceApp;
 
 public class ServiceConfigManager
 {
-    private const string ConfigDirectory = @"C:\ProgramData\MaxBackup";
-    private const string ConfigFile = @"C:\ProgramData\MaxBackup\config.json";
+    private static readonly string ConfigDirectory = Path.Combine(
+        Environment.GetFolderPath(Environment.SpecialFolder.CommonApplicationData), 
+        "MaxBackup");
+    private static readonly string ConfigFile = Path.Combine(ConfigDirectory, "config.json");
     private const int LockTimeoutSeconds = 15;
     private readonly ILogger<ServiceConfigManager> _logger;
     private readonly SemaphoreSlim _semaphore = new(1, 1);

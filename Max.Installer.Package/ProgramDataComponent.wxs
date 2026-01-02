@@ -1,12 +1,54 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <Wix xmlns="http://wixtoolset.org/schemas/v4/wxs">
 	<Fragment>
+		<!-- Properties for optional cleanup during uninstall (default to 0 = do not remove) -->
+		<Property Id="REMOVECONFIG" Value="0" />
+		<Property Id="REMOVELOGS" Value="0" />
+		
 		<Component Id="ProgramDataFolderComponent" Directory="MAXBACKUPDATAFOLDER" Guid="BE347DD7-26CD-4E54-8EEA-FA9F69BD7C0D">
 			<!-- Create the MaxBackup ProgramData folder -->
 			<CreateFolder />
 			
 			<!-- Create the logs subfolder -->
 			<CreateFolder Directory="MAXBACKUPLOGSFOLDER" />
+			
+			<!-- Optional: Remove config.json on uninstall if REMOVECONFIG=1 -->
+			<RemoveFile Id="RemoveConfigJson" 
+						Name="config.json" 
+						On="uninstall" 
+						Directory="MAXBACKUPDATAFOLDER" />
+			
+			<!-- Optional: Remove all files in logs folder on uninstall if REMOVELOGS=1 -->
+			<RemoveFile Id="RemoveLogFiles" 
+						Name="*.*" 
+						On="uninstall" 
+						Directory="MAXBACKUPLOGSFOLDER" />
+			
+			<!-- Remove logs folder if REMOVELOGS=1 -->
+			<RemoveFolder Id="RemoveLogsFolder" 
+						  Directory="MAXBACKUPLOGSFOLDER" 
+						  On="uninstall" />
+			
+			<!-- Remove parent MaxBackup folder if both REMOVECONFIG=1 AND REMOVELOGS=1 -->
+			<RemoveFolder Id="RemoveMaxBackupFolder" 
+						  Directory="MAXBACKUPDATAFOLDER" 
+						  On="uninstall" />
+		</Component>
+		
+		<!-- Conditional component for config removal -->
+		<Component Id="ConfigCleanupComponent" Directory="MAXBACKUPDATAFOLDER" Guid="A1B2C3D4-E5F6-7890-ABCD-EF1234567890" Condition="REMOVECONFIG=1">
+			<RemoveFile Id="CleanupConfigJson" Name="config.json" On="uninstall" />
+		</Component>
+		
+		<!-- Conditional component for logs removal -->
+		<Component Id="LogsCleanupComponent" Directory="MAXBACKUPLOGSFOLDER" Guid="B2C3D4E5-F6A7-8901-BCDE-F23456789012" Condition="REMOVELOGS=1">
+			<RemoveFile Id="CleanupLogFiles" Name="*.*" On="uninstall" />
+			<RemoveFolder Id="CleanupLogsFolder" On="uninstall" />
+		</Component>
+		
+		<!-- Conditional component for parent folder removal (only when both are being cleaned) -->
+		<Component Id="ParentFolderCleanupComponent" Directory="MAXBACKUPDATAFOLDER" Guid="C3D4E5F6-A7B8-9012-CDEF-345678901234" Condition="REMOVECONFIG=1 AND REMOVELOGS=1">
+			<RemoveFolder Id="CleanupMaxBackupFolder" On="uninstall" />
 		</Component>
 	</Fragment>
 </Wix>
