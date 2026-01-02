@@ -53,7 +53,7 @@ Never lose work - always stash first!
 6. Build and run unit tests locally - if either fail, go back to step 4
 7. Commit changes
 8. `git switch test && git pull --ff-only origin test` - Get latest test
-9. `git merge feature/your-feature && git push origin test` - Merge to test
+9. `git merge feature/your-feature --no-edit && git push origin test` - Merge to test
 10. Wait for CI workflow on test branch:
    ```powershell
    gh run list --branch test --limit 3 --json databaseId,status,conclusion,workflowName
