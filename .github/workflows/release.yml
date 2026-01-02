@@ -3,6 +3,11 @@ name: Release
 on:
   push:
     branches: [ "master", "test" ]
+    paths-ignore:
+      - '**.md'
+      - 'LICENSE'
+      - '.gitignore'
+      - 'manifests/**'
 
 # Ensure releases run synchronously - only one at a time across all branches
 concurrency:
