@@ -1,190 +1,98 @@
 # AI Agent Instructions
 
-This document contains important context and workflows for AI agents working on this repository.
+## ⚠️ STOP! Before Doing ANYTHING, Read This:
 
-## ⚠️ CRITICAL: Before Making ANY Code Changes
+**Every time you start new work, you MUST follow these steps IN ORDER:**
 
-**ALWAYS create a feature branch FIRST, before writing any code:**
-
+### Step 0: Check where you are
 ```powershell
-# Step 1: ALWAYS do this BEFORE making any changes
+git status
+```
+Look at which branch you're on. If you're not on a new feature branch, DO NOT make any changes yet.
+
+### Step 1: Get on master and update it
+```powershell
 git checkout master
 git pull origin master
-git checkout -b feature/your-feature-name   # or fix/your-fix-name
-
-# Step 2: NOW you can make changes
-# ... implement the fix/feature ...
-
-# Step 3: Commit your changes
-git add -A
-git commit -m "Description of changes"
 ```
 
-**Why this matters:** If you make changes on master and then try to pull, you'll have conflicts or need to stash. Always branch first!
+### Step 2: Create a new feature branch FROM MASTER
+```powershell
+git checkout -b feature/your-feature-name
+```
 
-## Branch Strategy
+### Step 3: NOW you can make changes
+Only after completing steps 0-2.
 
-- **master**: Protected branch, requires PRs. Releases are stable (e.g., `v0.2.5`)
-- **test**: Preview/staging branch. Releases are marked as pre-release (e.g., `Preview v0.2.4`)
-- Cannot push directly to master - all changes must go through PRs
-- **Feature branches are ALWAYS based on master, never on test**
+**This applies to EVERY new task. No exceptions. Even "small" edits. Even documentation changes. ALWAYS.**
 
-## Preferred Workflow for Changes
+If you find yourself editing files and you haven't done these steps, STOP. Discard your changes and start over correctly.
 
-Follow this 12-step workflow when making changes:
+## Branch Rules
 
-1. **Pull latest master**: `git checkout master && git pull origin master`
-2. **Create feature branch**: Branch from master (e.g., `git checkout -b fix/description`)
-3. **Make changes**: Implement the fix/feature
-4. **Pull latest test**: `git checkout test && git pull origin test`
-5. **Merge feature to test**: `git merge <feature-branch> && git push origin test`
-6. **Wait for Release workflow**: Use `gh run watch` to wait for completion (see examples below)
-7. **Verify**: Check that the preview release was created correctly
-8. **Create PR to master**: PR from feature branch to master
-9. **Wait for CI workflow**: Use `gh run watch` to wait for completion
-10. **Merge PR**: Use rebase merge strategy: `gh pr merge <number> --rebase`
-11. **Wait for Release workflow**: Use `gh run watch` to wait for completion
-12. **Verify and Celebrate**: Check stable release, then 🎉
+- **master**: Protected. Stable releases. Never commit directly.
+- **test**: Preview releases. Never commit directly.
+- **Feature branches**: ALWAYS create from master. NEVER from test.
 
-### Critical Rules
-- **ALWAYS create a feature branch BEFORE making any code changes** - never start coding on master
-- **Feature branches are ALWAYS based on master** - never branch from or rebase onto test
-- **Never force push to test** - always pull latest and merge
-- **PRs to master come from the feature branch**, not from test
-- **Wait for workflows to complete before proceeding** - don't create PR until test release succeeds
-- Test branch may have additional preview commits not yet in master - this is expected
+## Workflow for Changes
 
-## GitHub CLI Commands for Workflow Management
+1. `git status` - Check where you are
+2. `git checkout master && git pull origin master` - Get latest master
+3. `git checkout -b feature/your-feature` - Create feature branch from master
+4. Make changes and commit
+5. `git checkout test && git pull origin test` - Get latest test
+6. `git merge feature/your-feature && git push origin test` - Merge to test
+7. Wait for Release workflow (list runs, pick correct one, watch it)
+8. Verify preview release created
+9. **`<wait on user>`** - Ask user if ready to create PR
+10. Create PR from feature branch to master
+11. Wait for CI workflow
+12. **`<wait on user>`** - Ask user if ready to merge
+13. Merge PR: `gh pr merge <number> --rebase`
+14. Wait for Release workflow on master
+15. Verify stable release 🎉
 
-### Waiting for Workflows
+## Critical Rules
+
+### Always Ask User Before:
+- Merging master into test (or vice versa)
+- Hard resets (`git reset --hard`)
+- Rebasing
+- Force pushing (`git push --force`)
+
+User must explicitly request these by name.
+
+### Before Acting on Any Item:
+Never grab 1 item and immediately act on it. Always:
+1. List multiple items (e.g., `gh run list --limit 5`)
+2. Verify you have the correct item
+3. Then act
+
+### gh run watch Needs a Run ID
+`gh run watch` without arguments blocks. Always:
+```powershell
+gh run list --branch test --limit 3   # List first
+gh run watch <run-id>                  # Then watch specific one
+```
+
+### Alternate Buffer Issue
+If terminal shows "The command opened the alternate buffer", stop and tell user.
+
+## Quick Reference
 
 ```powershell
-# Watch the most recent workflow run (interactive, shows progress)
-gh run watch
+# Check branch
+git status
 
-# List recent workflow runs
+# Workflow runs
 gh run list --limit 5
-
-# Watch a specific run by ID
+gh run view <run-id>
 gh run watch <run-id>
 
-# Wait for a specific workflow on a branch
-gh run list --branch test --limit 1 --json databaseId --jq '.[0].databaseId' | ForEach-Object { gh run watch $_ }
+# PRs
+gh pr create --base master --head feature/name --title "Title" --body "Body"
+gh pr merge <number> --rebase
+
+# Releases
+gh release list --limit 3
 ```
-
-### Creating and Managing PRs
-
-```powershell
-# Create PR from feature branch to master
-gh pr create --base master --head feature/your-feature --title "Title" --body "Description"
-
-# Wait for PR checks to complete
-gh pr checks <pr-number> --watch
-
-# Merge PR with rebase strategy
-gh pr merge <pr-number> --rebase
-
-# View PR status
-gh pr view <pr-number>
-```
-
-### Complete Workflow Example
-
-```powershell
-# === STEP 1: Setup (DO THIS FIRST, BEFORE ANY CODE CHANGES) ===
-git checkout master
-git pull origin master
-git checkout -b feature/my-feature
-
-# === STEP 2: Make your changes ===
-# ... edit files ...
-git add -A
-git commit -m "Implement feature X"
-
-# === STEP 3: Push to test for preview release ===
-git checkout test
-git pull origin test
-git merge feature/my-feature
-git push origin test
-
-# === STEP 4: Wait for test release workflow ===
-gh run watch  # Wait for it to complete successfully
-
-# === STEP 5: Create PR (only after test release succeeds) ===
-git checkout feature/my-feature
-git push -u origin feature/my-feature
-gh pr create --base master --head feature/my-feature --title "Feature X" --body "Description"
-
-# === STEP 6: Wait for CI checks on PR ===
-gh pr checks <pr-number> --watch
-
-# === STEP 7: Merge PR ===
-gh pr merge <pr-number> --rebase
-
-# === STEP 8: Wait for master release workflow ===
-gh run watch  # Wait for stable release
-
-# === STEP 9: Verify release ===
-gh release list --limit 1
-```
-
-## GitHub Actions Workflows
-
-### CI Workflow (`ci.yml`)
-- **Triggers**: Pull requests only
-- **Purpose**: Fast feedback - build, test, verify installer builds
-- **Does NOT**: Create releases, version artifacts, or push tags
-
-### Release Workflow (`release.yml`)
-- **Triggers**: Pushes to `master` or `test` branches
-- **Purpose**: Full release with versioning, installer, and GitHub release creation
-- **Concurrency**: Uses global `release` group to ensure only one release runs at a time across all branches
-- **Important**: Never run releases in parallel - GitVersion can produce conflicts
-
-## GitVersion Configuration
-
-### Tag Format Requirements
-- **MUST use semver format**: `x.y.z` (e.g., `0.2.5`)
-- **NOT assembly format**: `x.y.z.0` (e.g., `0.2.5.0`)
-- GitVersion reads tags to determine the next version. If tags are in the wrong format, it will return `0.0.1`
-
-### Version Variables
-- Use `majorMinorPatch` for tag names and release titles
-- Do NOT use `assemblySemVer` for tags (it includes 4 parts)
-- `fullSemVer` includes prerelease label (e.g., `0.2.4-preview.1`)
-
-### Branch Labels
-- `master`: No label (stable releases)
-- `test`: `preview` label (pre-releases)
-
-## Integration Tests
-
-### Requirements
-- Integration tests require the CLI to be **published**, not just built
-- The `MAX_CLI_PATH` environment variable must point to the published executable
-- Use `dotnet publish` instead of `dotnet build` when running integration tests
-
-### Test Environment Setup
-```powershell
-$env:MAX_CLI_PATH = "path/to/Max/bin/publish/win/max.exe"
-dotnet test Max.IntegrationTests/Max.IntegrationTests.csproj
-```
-
-## Common Issues & Solutions
-
-### GitVersion Returns 0.0.1
-**Cause**: Tags are in wrong format (4-part instead of 3-part semver)
-**Solution**: Create proper semver tags: `git tag 0.2.5` not `git tag 0.2.5.0`
-
-### Parallel Builds Causing Version Conflicts
-**Cause**: Multiple release workflows running simultaneously
-**Solution**: Global concurrency group in release.yml ensures sequential execution
-
-### CI Failing on Integration Tests
-**Cause**: Tests need published CLI executable
-**Solution**: Use `dotnet publish` before running tests, set `MAX_CLI_PATH`
-
-## PR Merge Strategy
-
-- Prefer **rebase** merges to keep history clean
-- When using `gh pr merge`: `gh pr merge <number> --rebase`
