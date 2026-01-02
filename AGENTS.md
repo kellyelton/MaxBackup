@@ -2,6 +2,26 @@
 
 This document contains important context and workflows for AI agents working on this repository.
 
+## ⚠️ CRITICAL: Before Making ANY Code Changes
+
+**ALWAYS create a feature branch FIRST, before writing any code:**
+
+```powershell
+# Step 1: ALWAYS do this BEFORE making any changes
+git checkout master
+git pull origin master
+git checkout -b feature/your-feature-name   # or fix/your-fix-name
+
+# Step 2: NOW you can make changes
+# ... implement the fix/feature ...
+
+# Step 3: Commit your changes
+git add -A
+git commit -m "Description of changes"
+```
+
+**Why this matters:** If you make changes on master and then try to pull, you'll have conflicts or need to stash. Always branch first!
+
 ## Branch Strategy
 
 - **master**: Protected branch, requires PRs. Releases are stable (e.g., `v0.2.5`)
@@ -18,19 +38,95 @@ Follow this 12-step workflow when making changes:
 3. **Make changes**: Implement the fix/feature
 4. **Pull latest test**: `git checkout test && git pull origin test`
 5. **Merge feature to test**: `git merge <feature-branch> && git push origin test`
-6. **Wait for Release**: The Release workflow will run on test
+6. **Wait for Release workflow**: Use `gh run watch` to wait for completion (see examples below)
 7. **Verify**: Check that the preview release was created correctly
 8. **Create PR to master**: PR from feature branch to master
-9. **Wait for CI**: The CI workflow runs on PRs
-10. **Merge PR**: Use rebase merge strategy
-11. **Wait for Release**: The Release workflow will run on master
+9. **Wait for CI workflow**: Use `gh run watch` to wait for completion
+10. **Merge PR**: Use rebase merge strategy: `gh pr merge <number> --rebase`
+11. **Wait for Release workflow**: Use `gh run watch` to wait for completion
 12. **Verify and Celebrate**: Check stable release, then 🎉
 
 ### Critical Rules
+- **ALWAYS create a feature branch BEFORE making any code changes** - never start coding on master
 - **Feature branches are ALWAYS based on master** - never branch from or rebase onto test
 - **Never force push to test** - always pull latest and merge
 - **PRs to master come from the feature branch**, not from test
+- **Wait for workflows to complete before proceeding** - don't create PR until test release succeeds
 - Test branch may have additional preview commits not yet in master - this is expected
+
+## GitHub CLI Commands for Workflow Management
+
+### Waiting for Workflows
+
+```powershell
+# Watch the most recent workflow run (interactive, shows progress)
+gh run watch
+
+# List recent workflow runs
+gh run list --limit 5
+
+# Watch a specific run by ID
+gh run watch <run-id>
+
+# Wait for a specific workflow on a branch
+gh run list --branch test --limit 1 --json databaseId --jq '.[0].databaseId' | ForEach-Object { gh run watch $_ }
+```
+
+### Creating and Managing PRs
+
+```powershell
+# Create PR from feature branch to master
+gh pr create --base master --head feature/your-feature --title "Title" --body "Description"
+
+# Wait for PR checks to complete
+gh pr checks <pr-number> --watch
+
+# Merge PR with rebase strategy
+gh pr merge <pr-number> --rebase
+
+# View PR status
+gh pr view <pr-number>
+```
+
+### Complete Workflow Example
+
+```powershell
+# === STEP 1: Setup (DO THIS FIRST, BEFORE ANY CODE CHANGES) ===
+git checkout master
+git pull origin master
+git checkout -b feature/my-feature
+
+# === STEP 2: Make your changes ===
+# ... edit files ...
+git add -A
+git commit -m "Implement feature X"
+
+# === STEP 3: Push to test for preview release ===
+git checkout test
+git pull origin test
+git merge feature/my-feature
+git push origin test
+
+# === STEP 4: Wait for test release workflow ===
+gh run watch  # Wait for it to complete successfully
+
+# === STEP 5: Create PR (only after test release succeeds) ===
+git checkout feature/my-feature
+git push -u origin feature/my-feature
+gh pr create --base master --head feature/my-feature --title "Feature X" --body "Description"
+
+# === STEP 6: Wait for CI checks on PR ===
+gh pr checks <pr-number> --watch
+
+# === STEP 7: Merge PR ===
+gh pr merge <pr-number> --rebase
+
+# === STEP 8: Wait for master release workflow ===
+gh run watch  # Wait for stable release
+
+# === STEP 9: Verify release ===
+gh release list --limit 1
+```
 
 ## GitHub Actions Workflows
 
