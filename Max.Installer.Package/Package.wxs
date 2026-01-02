@@ -9,6 +9,9 @@
 		<Feature Id="BackupServiceFeature" Title="backup service">
 			<ComponentRef Id="MaxBackupServiceComponent" />
 			<ComponentRef Id="ProgramDataFolderComponent" />
+			<ComponentRef Id="ConfigCleanupComponent" />
+			<ComponentRef Id="LogsCleanupComponent" />
+			<ComponentRef Id="ParentFolderCleanupComponent" />
 		</Feature>
 		<Feature Id="CliAppFeature" Title="cli app">
 			<ComponentRef Id="MaxCliComponent" />

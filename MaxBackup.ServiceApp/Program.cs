@@ -6,6 +6,13 @@ using Serilog;
 // windows only
 [assembly:SupportedOSPlatform("windows")]
 
+// Define paths using environment variables
+var programDataPath = Environment.GetFolderPath(Environment.SpecialFolder.CommonApplicationData);
+var maxBackupDataPath = Path.Combine(programDataPath, "MaxBackup");
+var maxBackupLogsPath = Path.Combine(maxBackupDataPath, "logs");
+var serviceLogPath = Path.Combine(maxBackupLogsPath, "service.log");
+var configPath = Path.Combine(maxBackupDataPath, "config.json");
+
 IHost host = Host.CreateDefaultBuilder(args)
     .UseWindowsService(options => {
         options.ServiceName = "MaxBackup";
@@ -23,13 +30,13 @@ IHost host = Host.CreateDefaultBuilder(args)
     .ConfigureLogging((context, logging) => {
         logging.ClearProviders();
 
-        // Service-level logging to C:\ProgramData\MaxBackup\logs\service.log
+        // Service-level logging to %ProgramData%\MaxBackup\logs\service.log
         var logger = new LoggerConfiguration()
             .MinimumLevel.Information()
             .Enrich.FromLogContext()
             .WriteTo.Console(restrictedToMinimumLevel: Serilog.Events.LogEventLevel.Information)
             .WriteTo.File(
-                @"C:\ProgramData\MaxBackup\logs\service.log",
+                serviceLogPath,
                 rollingInterval: RollingInterval.Day,
                 restrictedToMinimumLevel: Serilog.Events.LogEventLevel.Information)
             .CreateLogger()
@@ -44,11 +51,11 @@ var logger = host.Services.GetRequiredService<ILogger<IHost>>();
 var env = host.Services.GetRequiredService<IHostEnvironment>();
 
 // Ensure log directory exists
-Directory.CreateDirectory(@"C:\ProgramData\MaxBackup\logs");
+Directory.CreateDirectory(maxBackupLogsPath);
 
 logger.LogInformation("MaxBackup Service starting");
 logger.LogInformation("Environment: {env}", env.EnvironmentName);
-logger.LogInformation("Service config location: C:\\ProgramData\\MaxBackup\\config.json");
+logger.LogInformation("Service config location: {configPath}", configPath);
 logger.LogInformation("Pipe name: \\\\.\\pipe\\MaxBackupPipe");
 
 await host.RunAsync();
