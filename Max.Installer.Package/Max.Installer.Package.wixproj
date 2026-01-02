@@ -1,4 +1,4 @@
-﻿<Project Sdk="WixToolset.Sdk/4.0.0">
+﻿<Project Sdk="WixToolset.Sdk/4.0.5">
   <ItemGroup>
     <ProjectReference Include="..\MaxBackup.ServiceApp\MaxBackup.ServiceApp.csproj" />
     <ProjectReference Include="..\Max\max.csproj" />
