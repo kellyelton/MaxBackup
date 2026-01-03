@@ -19,7 +19,7 @@ jobs:
     runs-on: windows-latest
     permissions:
       contents: write
-      issues: write
+      pull-requests: write
 
     env:
       Solution_Name: MaxBackup.sln
