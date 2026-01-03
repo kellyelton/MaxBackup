@@ -106,14 +106,23 @@ jobs:
     - name: Find WinGet PR
       id: wingetPr
       run: |
-        $pr = gh pr list --repo microsoft/winget-pkgs --author kellyelton --state all --search "KellyElton.Max.Backup version ${{ steps.version.outputs.majorMinorPatch }}" --json url,number --limit 1 | ConvertFrom-Json
-        if ($pr.Count -gt 0) {
-          Write-Output "url=$($pr[0].url)" >> $env:GITHUB_OUTPUT
-          Write-Output "number=$($pr[0].number)" >> $env:GITHUB_OUTPUT
-          Write-Output "Found WinGet PR: $($pr[0].url)"
-        } else {
-          Write-Output "No WinGet PR found"
+        $maxAttempts = 6
+        $delaySeconds = 10
+        for ($i = 1; $i -le $maxAttempts; $i++) {
+          Write-Output "Attempt $i of $maxAttempts..."
+          $pr = gh pr list --repo microsoft/winget-pkgs --author kellyelton --state all --search "KellyElton.Max.Backup version ${{ steps.version.outputs.majorMinorPatch }}" --json url,number --limit 1 | ConvertFrom-Json
+          if ($pr.Count -gt 0) {
+            Write-Output "url=$($pr[0].url)" >> $env:GITHUB_OUTPUT
+            Write-Output "number=$($pr[0].number)" >> $env:GITHUB_OUTPUT
+            Write-Output "Found WinGet PR: $($pr[0].url)"
+            exit 0
+          }
+          if ($i -lt $maxAttempts) {
+            Write-Output "WinGet PR not found yet, waiting $delaySeconds seconds..."
+            Start-Sleep -Seconds $delaySeconds
+          }
         }
+        Write-Output "No WinGet PR found after $maxAttempts attempts"
       env:
         GH_TOKEN: ${{ secrets.WINGET_TOKEN }}
 
