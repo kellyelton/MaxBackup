@@ -17,6 +17,9 @@ concurrency:
 jobs:
   build-and-release:
     runs-on: windows-latest
+    permissions:
+      contents: write
+      issues: write
 
     env:
       Solution_Name: MaxBackup.sln
@@ -99,3 +102,39 @@ jobs:
         installers-regex: '.*\.msi$'
         token: ${{ secrets.WINGET_TOKEN }}
         release-tag: ${{ steps.version.outputs.majorMinorPatch }}
+
+    - name: Find WinGet PR
+      id: wingetPr
+      run: |
+        $pr = gh pr list --repo microsoft/winget-pkgs --author kellyelton --state all --search "KellyElton.Max.Backup version ${{ steps.version.outputs.majorMinorPatch }}" --json url,number --limit 1 | ConvertFrom-Json
+        if ($pr.Count -gt 0) {
+          Write-Output "url=$($pr[0].url)" >> $env:GITHUB_OUTPUT
+          Write-Output "number=$($pr[0].number)" >> $env:GITHUB_OUTPUT
+          Write-Output "Found WinGet PR: $($pr[0].url)"
+        } else {
+          Write-Output "No WinGet PR found"
+        }
+      env:
+        GH_TOKEN: ${{ secrets.WINGET_TOKEN }}
+
+    - name: Find merged PR
+      uses: jwalton/gh-find-current-pr@v1
+      id: findPr
+      with:
+        state: closed
+
+    - name: Comment on PR with release info
+      if: steps.findPr.outputs.number
+      uses: peter-evans/create-or-update-comment@v5
+      with:
+        issue-number: ${{ steps.findPr.outputs.number }}
+        body: |
+          ## 🚀 Release Published
+          
+          This PR has been released!
+          
+          | Version | Download |
+          |---------|----------|
+          | `${{ steps.version.outputs.majorMinorPatch }}` | [Max.Installer.Package.msi](https://github.com/kellyelton/MaxBackup/releases/download/${{ steps.version.outputs.majorMinorPatch }}/Max.Installer.Package.msi) |
+          
+          ${{ steps.wingetPr.outputs.number && format('**WinGet PR:** microsoft/winget-pkgs#{0}', steps.wingetPr.outputs.number) || '' }}
