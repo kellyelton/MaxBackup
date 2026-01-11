@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="utf-8"?>
+<package xmlns="http://schemas.microsoft.com/packaging/2015/06/nuspec.xsd">
+  <metadata>
+    <id>KellyElton.Max.Backup</id>
+    <version>$version$</version>
+    <title>MaxBackup</title>
+    <authors>Kelly Elton</authors>
+    <owners>Kelly Elton</owners>
+    <projectUrl>https://github.com/kellyelton/MaxBackup</projectUrl>
+    <requireLicenseAcceptance>false</requireLicenseAcceptance>
+    <description>A background service that backs up files.</description>
+    <summary>Background backup service</summary>
+    <tags>backup service utility maxbackup max</tags>
+    <packageSourceUrl>https://github.com/kellyelton/MaxBackup</packageSourceUrl>
+  </metadata>
+  <files>
+    <file src="tools\**" target="tools" />
+  </files>
+</package>

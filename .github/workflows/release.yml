@@ -103,6 +103,11 @@ jobs:
         token: ${{ secrets.WINGET_TOKEN }}
         release-tag: ${{ steps.version.outputs.majorMinorPatch }}
 
+    - name: Push to Chocolatey
+      run: |
+        choco pack chocolatey/KellyElton.Max.Backup.nuspec --version ${{ steps.version.outputs.majorMinorPatch }}
+        choco push KellyElton.Max.Backup.${{ steps.version.outputs.majorMinorPatch }}.nupkg --source https://push.chocolatey.org/ --api-key ${{ secrets.CHOCOLATEY_API_KEY }}
+
     - name: Find WinGet PR
       id: wingetPr
       run: |
