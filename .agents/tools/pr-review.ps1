@@ -15,7 +15,7 @@ param(
 function Get-RepoInfo {
     $info = gh repo view --json owner,name | ConvertFrom-Json
     return @{
-        Owner = $info.owner
+        Owner = $info.owner.login
         Name = $info.name
     }
 }
@@ -45,7 +45,7 @@ function Get-PRComments {
 function Get-CommentDetails {
     param(
         [int]$PRNumber,
-        [int]$CommentId
+        [long]$CommentId
     )
     
     $repo = Get-RepoInfo
@@ -56,7 +56,7 @@ function Get-CommentDetails {
 function Get-ThreadId {
     param(
         [int]$PRNumber,
-        [int]$CommentId
+        [long]$CommentId
     )
     
     $repo = Get-RepoInfo
@@ -141,7 +141,7 @@ switch ($Command) {
             Write-Error "Note: GITHUB_COMMENT_ID is the ID from inside the file (e.g., 2683822801), NOT the local file number"
             exit 1
         }
-        $comment = Get-CommentDetails -PRNumber ([int]$Arg1) -CommentId ([int]$Arg2)
+        $comment = Get-CommentDetails -PRNumber ([int]$Arg1) -CommentId ([long]$Arg2)
         $comment | ConvertTo-Json -Depth 10
     }
     
@@ -151,7 +151,7 @@ switch ($Command) {
             Write-Error "Note: GITHUB_COMMENT_ID is the ID from inside the file (e.g., 2683822801), NOT the local file number"
             exit 1
         }
-        $threadId = Get-ThreadId -PRNumber ([int]$Arg1) -CommentId ([int]$Arg2)
+        $threadId = Get-ThreadId -PRNumber ([int]$Arg1) -CommentId ([long]$Arg2)
         if ($threadId) {
             Write-Output $threadId
         } else {
