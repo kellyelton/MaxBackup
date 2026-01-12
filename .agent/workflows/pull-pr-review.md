@@ -86,6 +86,4 @@ When running pull-pr-review again after a new review:
 
 ## Notes
 
-- `docs/pr/` is gitignored - these are local working documents
-- Each developer can have their own resolution notes
 - Use `/resolve-review` workflow to work through individual comments

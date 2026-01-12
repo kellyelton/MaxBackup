@@ -128,7 +128,5 @@ Report to the user:
 
 ## Important Notes
 
-- `docs/pr/` is gitignored - these are local working documents
-- Each developer can have their own resolution notes
 - Comments are de-duplicated by their GitHub comment ID
 - Use `/resolve-review` workflow to work through individual comments

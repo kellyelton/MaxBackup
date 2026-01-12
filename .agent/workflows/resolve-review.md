@@ -6,9 +6,6 @@ description: Process and resolve PR review comments from GitHub
 
 This workflow processes PR review comments and creates individual documents for iteration.
 
-> [!IMPORTANT]
-> **Local Workflow Only:** The documents created in `docs/pr/` are meant to facilitate the AI-User discussion and tracking. They **MUST NOT** be committed or pushed to the repository. They are typically gitignored.
-
 > [!CAUTION]
 > **STRICT SCOPE: ONE COMMENT PER CONVERSATION**
 > This workflow is designed to resolve exactly **ONE** review comment per conversation. 
@@ -114,13 +111,13 @@ gh api repos/{owner}/{repo}/pulls/{PR_NUMBER}/comments
    }' -f id="{THREAD_ID}"
    ```
 
-9. **STAGING AND COMMITTING CODE CHANGES ONLY:** Stage and commit only relevant code changes. **DO NOT** stage `docs/pr/` files.
+9. **STAGING AND COMMITTING CHANGES:** Stage and commit both code changes and updated `docs/pr/` tracking documents.
    ```powershell
-   git add <modified_files>
+   git add <modified_files> docs/pr/{PR_NUMBER}/
    git commit -m "fix: resolve PR review comment #{N} - {description}"
    ```
 
 10. **DONE:** This completes the workflow for this comment. 
-    - Update the individual document status to "Accepted" and "Committed: Yes" (keep local).
-    - **MANDATORY:** Check off the comment in the `docs/pr/{PR_NUMBER}/README.md` index table by changing `[ ]` to `[x]` (keep local).
+    - Update the individual document status to "Accepted" and "Committed: Yes".
+    - **MANDATORY:** Check off the comment in the `docs/pr/{PR_NUMBER}/README.md` index table by changing `[ ]` to `[x]`.
     - **STOP:** Do not proceed to another comment in this conversation.

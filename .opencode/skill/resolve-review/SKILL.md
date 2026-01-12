@@ -14,8 +14,6 @@ Process and resolve PR review comments with user collaboration.
 
 ## CRITICAL RULES
 
-> **LOCAL WORKFLOW ONLY:** Documents in `docs/pr/` are for AI-User discussion and tracking. They **MUST NOT** be committed or pushed to the repository.
-
 > **STRICT SCOPE: ONE COMMENT PER CONVERSATION**
 > 1. Start the workflow
 > 2. Resolve **ONE** comment (fully, including resolution on GitHub)
@@ -132,12 +130,12 @@ mutation($id: ID!) {
 }' -f id="{THREAD_ID}"
 ```
 
-### Step 11: Commit Code Changes Only
+### Step 11: Commit Changes
 
-**DO NOT** stage `docs/pr/` files. Only commit code changes:
+Stage and commit both code changes and the updated `docs/pr/` tracking documents:
 
 ```powershell
-git add <modified_code_files>
+git add <modified_code_files> docs/pr/{PR_NUMBER}/
 git commit -m "fix: resolve PR review comment #{N} - {description}"
 ```
 
@@ -163,7 +161,6 @@ The user must explicitly start a new conversation for the next comment.
 
 ## Important Notes
 
-- Local documents (`docs/pr/`) are for tracking only - never commit them
 - Always discuss with user before making code changes
 - One comment per conversation - strict scope
 - Mark resolved on GitHub so the PR shows progress
