@@ -1,0 +1,126 @@
+---
+description: Process and resolve PR review comments from GitHub
+---
+
+# Resolve Review Workflow
+
+This workflow processes PR review comments and creates individual documents for iteration.
+
+> [!IMPORTANT]
+> **Local Workflow Only:** The documents created in `docs/pr/` are meant to facilitate the AI-User discussion and tracking. They **MUST NOT** be committed or pushed to the repository. They are typically gitignored.
+
+> [!CAUTION]
+> **STRICT SCOPE: ONE COMMENT PER CONVERSATION**
+> This workflow is designed to resolve exactly **ONE** review comment per conversation. 
+> 1. Start the workflow.
+> 2. Resolve **ONE** comment (fully, including resolution on GitHub).
+> 3. **STOP IMMEDIATELY.**
+> 4. Do not look for or mention other comments. 
+> 5. The user must initiate a fresh conversation/workflow call for the next comment.
+
+## Fetching Comments
+
+// turbo
+1. Get PR number from user or determine from current branch:
+```
+gh pr list --head $(git branch --show-current) --json number --jq '.[0].number'
+```
+
+// turbo
+2. Fetch all review comments:
+```
+gh api repos/{owner}/{repo}/pulls/{PR_NUMBER}/comments
+```
+
+3. Parse the comments and create `docs/pr/{PR_NUMBER}/` directory
+
+4. For each comment, create a markdown file `docs/pr/{PR_NUMBER}/{N}-{slug}.md`. These documents serve as the **discussion board** for each issue.
+
+```markdown
+# Review: {Short Title}
+
+**File:** `{path}`
+**Line:** {line}
+**Comment ID:** {id}
+**Status:** [ ] Open | [ ] Accepted | [ ] Rejected | [ ] Deferred
+
+## Copilot's Comment
+
+{body}
+
+## Discussion
+
+<!-- Agent and user discuss the issue here -->
+
+## Resolution
+
+**Decision:** (pending)
+**Approach:** (to be determined)
+**Committed:** No
+
+---
+*PR #21 | Created: {date}*
+```
+
+5. Create an index file `docs/pr/{PR_NUMBER}/README.md` linking all comments
+
+6. Notify user that comments are ready for review
+
+# Resolve Review Workflow: Individual Comment
+
+**CRITICAL: Every comment MUST be discussed and agreed upon with the user BEFORE any code is modified.**
+
+> [!IMPORTANT]
+> **REMINDER:** You are here to resolve **ONLY ONE** comment. Once the resolution step is complete, you must STOP and end the task.
+
+1. **Selection:**
+   - **MANDATORY:** Open the index file `docs/pr/{PR_NUMBER}/README.md` to see the current state of all comments.
+   - If a specific comment is specified, open its document (e.g., `docs/pr/21/1-platform-check.md`).
+   - **Automatic Selection:** If nothing is specified, scan the index table for the first row with `[ ]` (Open). Select that comment to start work.
+
+2. **Read Comment Context:** Use the `gh` CLI to get the full comment details and thread ID if not already clear.
+   ```powershell
+   gh api repos/{owner}/{repo}/pulls/comments/{comment_id}
+   ```
+
+3. **Discussion:** Present the issue and options to the user.
+4. **Iterate** in the document/chat until a resolution is decided.
+5. **Update local document:** Record the decision in the "Discussion" and "Resolution" sections.
+6. **IMPLEMENTING CHANGES:** Only if accepted, perform the implementation.
+7. **Build and test.**
+8. **MARK AS RESOLVED ON GITHUB:** (CRITICAL) Use the `gh` API to resolve the thread. You must find the GraphQL `threadId` first.
+   
+   **Finding Thread ID:**
+   ```powershell
+   gh api graphql -F owner="{owner}" -F repo="{repo}" -F prNumber={PR_NUMBER} -f query='
+   query($owner: String!, $repo: String!, $prNumber: Int!) {
+     repository(owner: $owner, name: $repo) {
+       pullRequest(number: $prNumber) {
+         reviewThreads(first: 50) {
+           nodes { id isResolved comments(first: 1) { nodes { databaseId } } }
+         }
+       }
+     }
+   }' -q '.data.repository.pullRequest.reviewThreads.nodes[] | select(.comments.nodes[].databaseId == {comment_id}) | .id'
+   ```
+
+   **Resolving Thread:**
+   ```powershell
+   gh api graphql -f query='
+   mutation($id: ID!) {
+     resolveReviewThread(input: { threadId: $id }) {
+       thread { isResolved }
+     }
+   }' -f id="{THREAD_ID}"
+   ```
+
+9. **STAGING AND COMMITTING CODE CHANGES ONLY:** Stage and commit only relevant code changes. **DO NOT** stage `docs/pr/` files.
+   ```powershell
+   git add <modified_files>
+   git commit -m "fix: resolve PR review comment #{N} - {description}"
+   ```
+
+10. **DONE:** This completes the workflow for this comment. 
+    - Update the individual document status to "Accepted" and "Committed: Yes" (keep local).
+    - **MANDATORY:** Check off the comment in the `docs/pr/{PR_NUMBER}/README.md` index table by changing `[ ]` to `[x]` (keep local).
+    - **STOP:** Do not proceed to another comment in this conversation.

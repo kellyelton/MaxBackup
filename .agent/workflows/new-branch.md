@@ -1,8 +1,8 @@
 ---
-description: Initialize a new feature branch from a clean master for the specified work
+description: Create a new feature branch from a clean master for the specified work
 ---
 
-# Init Workflow
+# New Branch Workflow
 
 Sets up a clean feature branch from master for new work.
 

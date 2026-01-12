@@ -33,9 +33,9 @@ Find the first unchecked `[ ]` task.
 Get-Content docs/tasks/<task-name>.md
 ```
 
-### Step 4: Run Init Workflow
+### Step 4: Run New-Branch Workflow
 
-Use `/init` to set up a clean feature branch named after the task.
+Use `/new-branch` to set up a clean feature branch named after the task.
 
 ---
 
