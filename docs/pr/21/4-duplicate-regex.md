@@ -3,7 +3,7 @@
 **File:** `Max/ProviderCommand.cs`  
 **Line:** 54  
 **Comment ID:** 2683822810  
-**Status:** [ ] Open  | [ ] Accepted  | [ ] Rejected  | [ ] Deferred
+**Status:** [ ] Open  | [x] Accepted  | [ ] Rejected  | [ ] Deferred
 
 ## Copilot's Comment
 
@@ -29,9 +29,9 @@ if (!ProviderNameRegex().IsMatch(name))
 
 ## Resolution
 
-**Decision:** (pending)  
-**Approach:** (to be determined)  
-**Committed:** No
+**Decision:** Accepted  
+**Approach:** Removed the `ValidateProviderName()` method from `ProviderCommand.cs` and replaced calls with `MaxBackup.Shared.ProviderConfig.ValidateNameGetError()`. Used fully qualified name since there's a local `ProviderConfig` record in `JobsCommand.cs` that shadows the Shared type.  
+**Committed:** No (pending commit)
 
 ---
 *PR #21 | Created: 2026-01-12*

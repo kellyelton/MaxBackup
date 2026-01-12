@@ -40,22 +40,6 @@ public sealed class ProviderCommand : Command
         File.WriteAllText(configFilePath, json);
     }
 
-    /// <summary>
-    /// Validates a provider name using the same rules as MaxBackup.Shared.ProviderConfig
-    /// </summary>
-    private static string? ValidateProviderName(string name)
-    {
-        if (string.IsNullOrWhiteSpace(name))
-            return "Provider name cannot be empty";
-        if (name.Length > 32)
-            return "Provider name must be 32 characters or less";
-        if (!char.IsLower(name[0]))
-            return "Provider name must start with a lowercase letter";
-        if (!System.Text.RegularExpressions.Regex.IsMatch(name, @"^[a-z][a-z0-9_-]*$"))
-            return "Provider name can only contain lowercase letters, numbers, dashes, and underscores";
-        return null;
-    }
-
     public class AddCommand : Command
     {
         private readonly Option<string?> _typeOpt;
@@ -158,7 +142,7 @@ public sealed class ProviderCommand : Command
                     .PromptStyle(new Style(Color.Green))
                     .Validate(n =>
                     {
-                        var error = ValidateProviderName(n);
+                        var error = MaxBackup.Shared.ProviderConfig.ValidateNameGetError(n);
                         if (error != null) return ValidationResult.Error(error);
                         if (config.Providers?.Any(p => p.Name == n) == true)
                             return ValidationResult.Error($"Provider '{n}' already exists");
@@ -236,7 +220,7 @@ public sealed class ProviderCommand : Command
             bool skipTest)
         {
             // Validate provider name
-            var nameError = ValidateProviderName(name);
+            var nameError = MaxBackup.Shared.ProviderConfig.ValidateNameGetError(name);
             if (nameError != null)
             {
                 Console.Error.WriteLine($"Error: {nameError}");
