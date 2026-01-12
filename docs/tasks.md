@@ -6,10 +6,10 @@ Ordered list of tasks to complete. Check off tasks as they're completed.
 
 ## Current Tasks
 
-### Azure Blob Storage Provider (Phase 2)
+### Azure Blob Storage Provider
 
-- [ ] [backup-executor-provider-integration](tasks/backup-executor-provider-integration.md) - Integrate IStorageProvider into BackupExecutor to enable cloud backups
-- [ ] [cloud-backup-progress-reporting](tasks/cloud-backup-progress-reporting.md) - Add upload progress logging for cloud backup operations
+- [x] [backup-executor-provider-integration](tasks/backup-executor-provider-integration.md) - Integrate IStorageProvider into BackupExecutor *(completed 2026-01-12)*
+- [x] [cloud-backup-progress-reporting](tasks/cloud-backup-progress-reporting.md) - Add upload progress logging *(completed 2026-01-12)*
 - [ ] [provider-credential-encryption](tasks/provider-credential-encryption.md) - Encrypt sensitive provider credentials in config file
 
 ### Future Enhancements
