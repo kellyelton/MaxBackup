@@ -2,7 +2,9 @@
 description: Process and resolve a single PR review comment with user discussion
 ---
 
-Load the resolve-review skill and execute the workflow.
+Use the skill tool to load "resolve-review" and execute the workflow:
+
+skill({ name: "resolve-review" })
 
 Arguments:
 - $1 = PR number (optional, defaults to current branch's PR)
