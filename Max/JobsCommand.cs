@@ -55,12 +55,13 @@ namespace max
                     }
                     var table = new Table()
                         .Border(TableBorder.Rounded)
-                        .BorderColor(Color.Red)
+                        .BorderColor(Color.Blue)
                         .AddColumn(new TableColumn("Name").Centered())
                         .AddColumn(new TableColumn("Source").Centered())
-                        .AddColumn(new TableColumn("Destination").Centered());
+                        .AddColumn(new TableColumn("Destination").Centered())
+                        .AddColumn(new TableColumn("Provider").Centered());
                     foreach (var job in config.Backup.Jobs)
-                        table.AddRow(job.Name, job.Source, job.Destination);
+                        table.AddRow(job.Name, job.Source, job.Destination, job.Provider ?? "[dim]local[/]");
                     AnsiConsole.Write(table);
                     return 0;
                 });
@@ -71,9 +72,10 @@ namespace max
         {
             private readonly Argument<string> _nameArg = new("name") { Description = "Job name" };
             private readonly Argument<string> _sourceArg = new("source") { Description = "Source path" };
-            private readonly Argument<string> _destArg = new("destination") { Description = "Destination path" };
+            private readonly Argument<string> _destArg = new("destination") { Description = "Destination path (local path or relative path if --provider is set)" };
             private readonly Option<string[]> _includeOpt;
             private readonly Option<string[]> _excludeOpt;
+            private readonly Option<string?> _providerOpt;
 
             public CreateCommand(Option<string> config_path, Option<bool> verbose)
                 : base("create", "Create a new backup job")
@@ -88,12 +90,17 @@ namespace max
                     Description = "Exclude patterns",
                     DefaultValueFactory = _ => Array.Empty<string>()
                 };
+                _providerOpt = new Option<string?>("--provider")
+                {
+                    Description = "Storage provider name for cloud backups (use 'max provider list' to see available)"
+                };
 
                 Arguments.Add(_nameArg);
                 Arguments.Add(_sourceArg);
                 Arguments.Add(_destArg);
                 Options.Add(_includeOpt);
                 Options.Add(_excludeOpt);
+                Options.Add(_providerOpt);
 
                 this.SetAction(parseResult =>
                 {
@@ -102,18 +109,39 @@ namespace max
                     var destination = parseResult.GetValue(_destArg)!;
                     var include = parseResult.GetValue(_includeOpt) ?? Array.Empty<string>();
                     var exclude = parseResult.GetValue(_excludeOpt) ?? Array.Empty<string>();
+                    var provider = parseResult.GetValue(_providerOpt);
                     var config_file_path = GetConfigPath(parseResult, config_path);
-                    var config = LoadConfig(config_file_path) ?? new Config(new Backup(Array.Empty<Job>()));
+                    var config = LoadConfig(config_file_path) ?? new Config(new Backup(Array.Empty<Job>()), null);
+                    
                     if (config.Backup.Jobs.Any(j => j.Name == name))
                     {
                         Console.Error.WriteLine($"Job '{name}' already exists.");
                         return 1;
                     }
+                    
+                    // Validate provider if specified
+                    if (!string.IsNullOrEmpty(provider))
+                    {
+                        if (config.Providers == null || !config.Providers.Any(p => p.Name == provider))
+                        {
+                            Console.Error.WriteLine($"Provider '{provider}' not found. Use 'max provider list' to see available providers.");
+                            return 1;
+                        }
+                    }
+                    
                     var jobs = config.Backup.Jobs.ToList();
-                    jobs.Add(new Job(name, source, destination, include, exclude));
+                    jobs.Add(new Job(name, source, destination, include, exclude, provider));
                     config = config with { Backup = config.Backup with { Jobs = jobs.ToArray() } };
                     SaveConfig(config_file_path, config);
-                    Console.WriteLine($"Job '{name}' created.");
+                    
+                    if (!string.IsNullOrEmpty(provider))
+                    {
+                        Console.WriteLine($"Job '{name}' created with provider '{provider}'.");
+                    }
+                    else
+                    {
+                        Console.WriteLine($"Job '{name}' created.");
+                    }
                     return 0;
                 });
             }
@@ -221,7 +249,25 @@ namespace max
         }
     }
 
-    public record Config(Backup Backup);
+    public record Config(Backup Backup, ProviderConfig[]? Providers = null);
     public record Backup(Job[] Jobs);
-    public record Job(string Name, string Source, string Destination, string[] Include, string[] Exclude);
+    public record Job(
+        string Name, 
+        string Source, 
+        string Destination, 
+        string[] Include, 
+        string[] Exclude,
+        string? Provider = null);
+    
+    // Provider configuration types for JSON serialization
+    [System.Text.Json.Serialization.JsonPolymorphic(TypeDiscriminatorPropertyName = "Type")]
+    [System.Text.Json.Serialization.JsonDerivedType(typeof(AzureBlobProvider), "azure-blob")]
+    public abstract record ProviderConfig(string Name);
+    
+    public record AzureBlobProvider(
+        string Name,
+        string AccountName,
+        string AccountKey,
+        string ContainerName,
+        string? BlobPrefix = null) : ProviderConfig(Name);
 }
