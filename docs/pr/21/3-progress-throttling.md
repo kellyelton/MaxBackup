@@ -3,7 +3,7 @@
 **File:** `MaxBackup.ServiceApp/BackupExecutor.cs`  
 **Line:** 231-238  
 **Comment ID:** 2683822801  
-**Status:** [ ] Open  | [ ] Accepted  | [ ] Rejected  | [ ] Deferred
+**Status:** [ ] Open  | [ ] Accepted  | [x] Rejected  | [ ] Deferred
 
 ## Copilot's Comment
 
@@ -31,9 +31,9 @@ The progress callback creates a new Progress instance that reports on every byte
 
 ## Resolution
 
-**Decision:** (pending)  
-**Approach:** (to be determined)  
-**Committed:** No
+**Decision:** Rejected  
+**Rationale:** The concern assumes per-byte reporting, but Azure SDK reports per-chunk (typically 4MB). The current implementation is efficient - a 1GB file triggers ~256 callbacks, not millions. The overhead of ~256 `if` checks is negligible compared to network I/O time.  
+**Committed:** N/A (no code changes)
 
 ---
 *PR #21 | Created: 2026-01-12*
