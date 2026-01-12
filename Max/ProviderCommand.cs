@@ -1,6 +1,7 @@
 using System.CommandLine;
 using System.Text.Json;
 using Azure.Storage.Blobs;
+using MaxBackup.Shared;
 using Spectre.Console;
 
 namespace max;
@@ -200,12 +201,13 @@ public sealed class ProviderCommand : Command
                 return 1;
             }
 
-            // Save provider
+            // Save provider with encrypted credentials
+            var encryptedKey = CredentialProtection.Encrypt(accountKey);
             var providers = (config.Providers ?? Array.Empty<ProviderConfig>()).ToList();
             providers.Add(new AzureBlobProvider(
                 name,
                 accountName,
-                accountKey,
+                encryptedKey,
                 container,
                 string.IsNullOrWhiteSpace(blobPrefix) ? null : blobPrefix));
 
@@ -274,12 +276,13 @@ public sealed class ProviderCommand : Command
                 return 1;
             }
 
-            // Save provider
+            // Save provider with encrypted credentials
+            var encryptedKey = CredentialProtection.Encrypt(accountKey);
             var providers = (config.Providers ?? Array.Empty<ProviderConfig>()).ToList();
             providers.Add(new AzureBlobProvider(
                 name,
                 accountName,
-                accountKey,
+                encryptedKey,
                 container,
                 string.IsNullOrWhiteSpace(blobPrefix) ? null : blobPrefix));
 
@@ -483,7 +486,15 @@ public sealed class ProviderCommand : Command
 
                 try
                 {
-                    var connectionString = $"DefaultEndpointsProtocol=https;AccountName={azure.AccountName};AccountKey={azure.AccountKey};EndpointSuffix=core.windows.net";
+                    // Decrypt account key if encrypted
+                    var decryptedKey = CredentialProtection.TryDecrypt(azure.AccountKey, out var decryptError);
+                    if (decryptedKey == null)
+                    {
+                        AnsiConsole.MarkupLine($"[red]✗[/] {decryptError}");
+                        return 1;
+                    }
+
+                    var connectionString = $"DefaultEndpointsProtocol=https;AccountName={azure.AccountName};AccountKey={decryptedKey};EndpointSuffix=core.windows.net";
                     var containerClient = new BlobContainerClient(connectionString, azure.ContainerName);
 
                     await AnsiConsole.Status()

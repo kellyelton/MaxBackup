@@ -57,7 +57,8 @@ public class AzureBlobProviderConfig : ProviderConfig
 
     /// <summary>
     /// Azure Storage Account access key.
-    /// Note: In a future version, this should be stored encrypted.
+    /// May be plain text or encrypted (prefixed with "enc:").
+    /// Use GetDecryptedAccountKey() to get the plain text value.
     /// </summary>
     public required string AccountKey { get; set; }
 
@@ -72,10 +73,28 @@ public class AzureBlobProviderConfig : ProviderConfig
     public string? BlobPrefix { get; set; }
 
     /// <summary>
+    /// Gets the decrypted account key, handling both encrypted and plain text values.
+    /// </summary>
+    public string GetDecryptedAccountKey()
+    {
+        return CredentialProtection.Decrypt(AccountKey);
+    }
+
+    /// <summary>
+    /// Checks if the account key is encrypted.
+    /// </summary>
+    public bool IsAccountKeyEncrypted()
+    {
+        return CredentialProtection.IsEncrypted(AccountKey);
+    }
+
+    /// <summary>
     /// Builds the connection string for this provider.
+    /// Automatically decrypts the account key if encrypted.
     /// </summary>
     public string BuildConnectionString()
     {
-        return $"DefaultEndpointsProtocol=https;AccountName={AccountName};AccountKey={AccountKey};EndpointSuffix=core.windows.net";
+        var key = GetDecryptedAccountKey();
+        return $"DefaultEndpointsProtocol=https;AccountName={AccountName};AccountKey={key};EndpointSuffix=core.windows.net";
     }
 }
