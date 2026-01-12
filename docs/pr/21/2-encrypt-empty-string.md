@@ -3,7 +3,7 @@
 **File:** `MaxBackup.Shared/CredentialProtection.cs`  
 **Line:** 21  
 **Comment ID:** 2683822790  
-**Status:** [ ] Open  | [ ] Accepted  | [ ] Rejected  | [ ] Deferred
+**Status:** [x] Accepted
 
 ## Copilot's Comment
 
@@ -35,9 +35,9 @@ if (plainText is null)
 
 ## Resolution
 
-**Decision:** (pending)  
-**Approach:** (to be determined)  
-**Committed:** No
+**Decision:** Accepted
+**Approach:** Throw ArgumentNullException on null, encrypt empty strings. Created NUnit test project.
+**Committed:** Yes
 
 ---
 *PR #21 | Created: 2026-01-12*

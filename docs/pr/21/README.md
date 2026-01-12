@@ -5,7 +5,7 @@ Copilot code review comments for the Azure Blob Storage provider PR.
 | # | Status | File | Issue |
 |---|--------|------|-------|
 | 1 | [x] | `CredentialProtection.cs` | [Windows-only platform check](1-platform-check.md) |
-| 2 | [ ] | `CredentialProtection.cs` | [Empty string handling in Encrypt](2-encrypt-empty-string.md) |
+| 2 | [x] | `CredentialProtection.cs` | [Empty string handling in Encrypt](2-encrypt-empty-string.md) |
 | 3 | [ ] | `BackupExecutor.cs` | [Progress callback throttling](3-progress-throttling.md) |
 | 4 | [ ] | `ProviderCommand.cs` | [Duplicate regex validation](4-duplicate-regex.md) |
 | 5 | [ ] | `ProviderCommand.cs` | [Redundant lowercase check](5-redundant-lowercase.md) |

@@ -18,8 +18,7 @@ public static class CredentialProtection
     /// </summary>
     public static string Encrypt(string plainText)
     {
-        if (string.IsNullOrEmpty(plainText))
-            return plainText;
+        ArgumentNullException.ThrowIfNull(plainText);
 
         var plainBytes = Encoding.UTF8.GetBytes(plainText);
         var encryptedBytes = ProtectedData.Protect(

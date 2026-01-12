@@ -63,6 +63,7 @@ public sealed class ProviderCommand : Command
         private readonly Option<string?> _accountNameOpt;
         private readonly Option<string?> _accountKeyOpt;
         private readonly Option<string?> _containerOpt;
+        private readonly Option<bool> _skipTestOpt;
         private readonly Option<string?> _blobPrefixOpt;
 
         public AddCommand(Option<string> configPath, Option<bool> verbose)
@@ -74,6 +75,7 @@ public sealed class ProviderCommand : Command
             _accountKeyOpt = new Option<string?>("--account-key") { Description = "Azure Storage Account access key" };
             _containerOpt = new Option<string?>("--container") { Description = "Azure Blob container name" };
             _blobPrefixOpt = new Option<string?>("--blob-prefix") { Description = "Optional blob prefix" };
+            _skipTestOpt = new Option<bool>("--skip-test") { Description = "Skip connection verification" };
 
             Options.Add(_typeOpt);
             Options.Add(_nameOpt);
@@ -81,6 +83,7 @@ public sealed class ProviderCommand : Command
             Options.Add(_accountKeyOpt);
             Options.Add(_containerOpt);
             Options.Add(_blobPrefixOpt);
+            Options.Add(_skipTestOpt);
 
             this.SetAction(async parseResult =>
             {
@@ -107,7 +110,8 @@ public sealed class ProviderCommand : Command
                 }
                 else
                 {
-                    return await RunNonInteractiveAsync(config, configFilePath, type!, name!, accountName, accountKey, container, blobPrefix);
+                    var skipTest = parseResult.GetValue(_skipTestOpt);
+                    return await RunNonInteractiveAsync(config, configFilePath, type!, name!, accountName, accountKey, container, blobPrefix, skipTest);
                 }
             });
         }
@@ -228,7 +232,8 @@ public sealed class ProviderCommand : Command
             string? accountName,
             string? accountKey,
             string? container,
-            string? blobPrefix)
+            string? blobPrefix,
+            bool skipTest)
         {
             // Validate provider name
             var nameError = ValidateProviderName(name);
@@ -269,11 +274,14 @@ public sealed class ProviderCommand : Command
             }
 
             // Verify connection
-            var testResult = await VerifyConnectionAsync(accountName, accountKey, container);
-            if (!testResult.Success)
+            if (!skipTest)
             {
-                Console.Error.WriteLine($"Error: Connection failed - {testResult.ErrorMessage}");
-                return 1;
+                var testResult = await VerifyConnectionAsync(accountName, accountKey, container);
+                if (!testResult.Success)
+                {
+                    Console.Error.WriteLine($"Error: Connection failed - {testResult.ErrorMessage}");
+                    return 1;
+                }
             }
 
             // Save provider with encrypted credentials
