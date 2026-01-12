@@ -52,7 +52,11 @@ pwsh .agents/tools/pr-review.ps1 get-comment 21 2683822801
 
 ## Step 5: Present to User
 
-Present clearly: what the reviewer is asking, the affected code, options (accept/reject/defer/modify).
+Present clearly: what the reviewer is asking, the affected code, options:
+- **Accept** - Implement the suggested change
+- **Reject** - Decline with explanation (MUST leave a reply comment)
+- **Modify** - Implement a variation of the suggestion
+- **Defer** - Acknowledge but postpone to future work
 
 **CRITICAL:** Discuss with user BEFORE any code changes.
 
@@ -60,11 +64,39 @@ Present clearly: what the reviewer is asking, the affected code, options (accept
 
 Update local document's Discussion section. Continue until clear resolution.
 
-## Step 7: Implement Changes (If Accepted)
+Record the decision type (accept/reject/modify/defer) and rationale.
 
-Make code changes, verify with lsp_diagnostics.
+## Step 7: Handle Based on Decision
 
-## Step 8: Build and Test
+### If ACCEPTED or MODIFIED:
+1. Make code changes
+2. Verify with lsp_diagnostics
+3. Reply to comment explaining what was done:
+   ```
+   pwsh .agents/tools/pr-review.ps1 reply {PR_NUMBER} {GITHUB_COMMENT_ID} "Fixed in this PR - [brief description of change]"
+   ```
+
+### If REJECTED:
+**MANDATORY:** Always reply explaining why the suggestion was declined:
+```
+pwsh .agents/tools/pr-review.ps1 reply {PR_NUMBER} {GITHUB_COMMENT_ID} "Declining this suggestion because [reason]. [Optional: alternative approach or future consideration]"
+```
+
+Common rejection reasons to include:
+- Performance/complexity tradeoff not worth it for this use case
+- Existing pattern in codebase differs intentionally
+- Out of scope for this PR, tracked separately
+- Technical constraint prevents this approach
+
+### If DEFERRED:
+Reply acknowledging the feedback:
+```
+pwsh .agents/tools/pr-review.ps1 reply {PR_NUMBER} {GITHUB_COMMENT_ID} "Good point - deferring to [issue/future PR]. [Brief reason for deferral]"
+```
+
+## Step 8: Build and Test (If Code Changed)
+
+Skip this step if no code changes were made (reject/defer).
 
 ```
 pwsh -Command "dotnet build MaxBackup.sln --verbosity minimal"
@@ -87,9 +119,16 @@ pwsh .agents/tools/pr-review.ps1 resolve-thread "PRRT_kwDONdef..."
 
 ## Step 10: Commit
 
+If code was changed:
 ```
 git add <files> docs/pr/{PR_NUMBER}/
-git commit -m "fix: resolve PR review comment"
+git commit -m "fix: resolve PR review - [brief description]"
+```
+
+If only rejected/deferred (no code changes):
+```
+git add docs/pr/{PR_NUMBER}/
+git commit -m "docs: resolve PR review comment #[local_number] - [accept/reject/defer]"
 ```
 
 ## Step 11: Update Local Tracking

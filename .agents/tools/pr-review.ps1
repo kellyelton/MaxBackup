@@ -9,7 +9,10 @@ param(
     [string]$Arg1,
     
     [Parameter(Position=2)]
-    [string]$Arg2
+    [string]$Arg2,
+    
+    [Parameter(Position=3)]
+    [string]$Arg3
 )
 
 function Get-RepoInfo {
@@ -109,6 +112,20 @@ mutation {
     return $result.data.resolveReviewThread.thread.isResolved
 }
 
+function Send-CommentReply {
+    param(
+        [int]$PRNumber,
+        [long]$CommentId,
+        [string]$Body
+    )
+    
+    $repo = Get-RepoInfo
+    $endpoint = "repos/$($repo.Owner)/$($repo.Name)/pulls/$PRNumber/comments/$CommentId/replies"
+    
+    $result = gh api -X POST $endpoint -f body="$Body" | ConvertFrom-Json
+    return $result
+}
+
 # Main command dispatcher
 switch ($Command) {
     "get-pr-number" {
@@ -174,6 +191,23 @@ switch ($Command) {
         }
     }
     
+    "reply" {
+        if (-not $Arg1 -or -not $Arg2 -or -not $Arg3) {
+            Write-Error "Usage: pr-review.ps1 reply <PR_NUMBER> <GITHUB_COMMENT_ID> <MESSAGE>"
+            Write-Error "Note: GITHUB_COMMENT_ID is the ID from inside the file (e.g., 2683822801), NOT the local file number"
+            Write-Error "Example: pwsh .agents/tools/pr-review.ps1 reply 21 2683822801 'Fixed in commit abc123'"
+            exit 1
+        }
+        $reply = Send-CommentReply -PRNumber ([int]$Arg1) -CommentId ([long]$Arg2) -Body $Arg3
+        if ($reply.id) {
+            Write-Output "Reply posted successfully (ID: $($reply.id))"
+            Write-Output "URL: $($reply.html_url)"
+        } else {
+            Write-Error "Failed to post reply"
+            exit 1
+        }
+    }
+    
     default {
         Write-Output @"
 PR Review Helper Tools
@@ -183,12 +217,13 @@ NOT the local file number (e.g., 3). Find the GitHub Comment ID inside
 the local file header: **Comment ID:** 2683822801
 
 Commands:
-  get-pr-number                    Get PR number for current branch
-  get-repo-info                    Get owner/repo info
-  get-pr-comments <PR>             Get all review comments for a PR
-  get-comment <PR> <COMMENT_ID>    Get details for a specific comment
-  get-thread-id <PR> <COMMENT_ID>  Get the thread ID for a comment (needed for resolving)
-  resolve-thread <THREAD_ID>       Mark a review thread as resolved
+  get-pr-number                              Get PR number for current branch
+  get-repo-info                              Get owner/repo info
+  get-pr-comments <PR>                       Get all review comments for a PR
+  get-comment <PR> <COMMENT_ID>              Get details for a specific comment
+  get-thread-id <PR> <COMMENT_ID>            Get the thread ID (needed for resolving)
+  resolve-thread <THREAD_ID>                 Mark a review thread as resolved
+  reply <PR> <COMMENT_ID> <MESSAGE>          Reply to a review comment
 
 Examples:
   pwsh .agents/tools/pr-review.ps1 get-pr-number
@@ -196,6 +231,7 @@ Examples:
   pwsh .agents/tools/pr-review.ps1 get-comment 21 2683822801
   pwsh .agents/tools/pr-review.ps1 get-thread-id 21 2683822801
   pwsh .agents/tools/pr-review.ps1 resolve-thread "PRRT_kwDONdef123"
+  pwsh .agents/tools/pr-review.ps1 reply 21 2683822801 "Fixed in latest commit"
 "@
     }
 }
