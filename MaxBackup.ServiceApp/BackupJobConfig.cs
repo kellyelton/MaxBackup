@@ -19,6 +19,12 @@ namespace MaxBackup.ServiceApp
         [Required]
         public string[] Exclude { get; set; } = Array.Empty<string>();
 
+        /// <summary>
+        /// Optional provider name. If set, Destination is a path relative to the
+        /// provider's container/prefix. If null, Destination is a local filesystem path.
+        /// </summary>
+        public string? Provider { get; set; }
+
         public IReadOnlyDictionary<string, object> GetScope() {
             return new Dictionary<string, object> {
                 ["Name"] = Name,

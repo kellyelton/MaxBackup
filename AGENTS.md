@@ -148,3 +148,61 @@ gh pr merge <number> --merge
 # Releases
 gh release list --limit 3
 ```
+
+---
+
+## Task Management
+
+Tasks are tracked in `docs/tasks.md` with individual task files in `docs/tasks/`.
+
+### Task Backlog Structure
+
+```
+docs/
+├── tasks.md                              # Ordered list of all tasks
+└── tasks/
+    ├── backup-executor-provider-integration.md
+    ├── cloud-backup-progress-reporting.md
+    └── ...
+```
+
+### Task File Format
+
+Each task file should include:
+- **Summary** - One-line description
+- **Context** - Background and motivation
+- **Files to Modify** - List of affected files
+- **Acceptance Criteria** - Checklist of completion requirements
+- **Technical Notes** - Implementation details
+- **Dependencies** - Links to prerequisite tasks
+
+### Working with Tasks
+
+#### Starting a New Task
+1. Read `docs/tasks.md` to see the backlog
+2. Pick the top incomplete task (or as directed by user)
+3. Read the task file for full context
+4. Create a feature branch named after the task:
+   ```powershell
+   git switch -c feature/backup-executor-provider-integration
+   ```
+
+#### Adding a New Task
+1. Create a new file in `docs/tasks/` with kebab-case filename
+2. Add entry to `docs/tasks.md` at the appropriate position
+3. Do NOT assign numbers - position in the list defines priority
+4. Link to the task file: `[task-name](tasks/task-name.md)`
+
+#### Completing a Task
+1. Move the task entry from "Current Tasks" to "Completed Tasks" in `docs/tasks.md`
+2. Add completion date: `- [task-name](tasks/task-name.md) - *(completed 2024-01-12)*`
+3. Keep the task file for historical reference
+
+#### Inserting Tasks Between Others
+Since tasks are not numbered, simply add the new entry at the desired position in the list. This avoids renumbering issues.
+
+### Task Naming Convention
+
+- Use kebab-case for filenames: `backup-executor-provider-integration.md`
+- Be descriptive but concise
+- Match the filename to the task summary

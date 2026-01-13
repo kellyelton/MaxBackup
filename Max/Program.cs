@@ -54,6 +54,7 @@ rootCommand.Subcommands.Add(new RegisterCommand(verboseOption));
 rootCommand.Subcommands.Add(new UnregisterCommand(verboseOption));
 rootCommand.Subcommands.Add(new StatusCommand(verboseOption));
 rootCommand.Subcommands.Add(jobs_command);
+rootCommand.Subcommands.Add(new ProviderCommand(configPathOption, verboseOption));
 rootCommand.Subcommands.Add(new ServiceCommand(verboseOption));
 
 var parseResult = rootCommand.Parse(args);

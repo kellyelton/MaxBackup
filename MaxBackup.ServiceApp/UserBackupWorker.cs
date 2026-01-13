@@ -55,6 +55,9 @@ public class UserBackupWorker
                     .BindConfiguration("Backup")
                     .ValidateDataAnnotations();
 
+                // Bind provider configs - use the root config to get both sections
+                services.Configure<ServiceRootConfig>(context.Configuration);
+
                 // Add the backup executor as a hosted service
                 services.AddSingleton(sp => userProfilePath);
                 services.AddHostedService<BackupExecutorService>();
@@ -174,16 +177,22 @@ public class UserBackupWorker
 internal class BackupExecutorService : BackgroundService
 {
     private readonly ILogger<BackupExecutorService> _logger;
+    private readonly ILoggerFactory _loggerFactory;
     private readonly IOptionsMonitor<BackupConfig> _backupConfigProvider;
+    private readonly IOptionsMonitor<ServiceRootConfig> _rootConfigProvider;
     private readonly string _userProfilePath;
 
     public BackupExecutorService(
         ILogger<BackupExecutorService> logger,
+        ILoggerFactory loggerFactory,
         IOptionsMonitor<BackupConfig> backupConfigProvider,
+        IOptionsMonitor<ServiceRootConfig> rootConfigProvider,
         string userProfilePath)
     {
         _logger = logger;
+        _loggerFactory = loggerFactory;
         _backupConfigProvider = backupConfigProvider;
+        _rootConfigProvider = rootConfigProvider;
         _userProfilePath = userProfilePath;
     }
 
@@ -196,6 +205,12 @@ internal class BackupExecutorService : BackgroundService
             try
             {
                 var config = _backupConfigProvider.CurrentValue;
+                var rootConfig = _rootConfigProvider.CurrentValue;
+
+                // Create provider factory from current config
+                var providerFactory = rootConfig.Providers.Length > 0
+                    ? new Providers.StorageProviderFactory(rootConfig.Providers, _loggerFactory)
+                    : null;
 
                 foreach (var job in config.Jobs)
                 {
@@ -205,6 +220,7 @@ internal class BackupExecutorService : BackgroundService
                     await BackupExecutor.RunBackupJobAsync(
                         job,
                         _userProfilePath,
+                        providerFactory,
                         _logger,
                         stoppingToken);
                 }
