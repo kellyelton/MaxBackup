@@ -3,7 +3,7 @@
 **File:** `MaxBackup.ServiceApp/Providers/AzureBlobStorageProvider.cs`  
 **Line:** 204-212  
 **Comment ID:** 2683822847  
-**Status:** [ ] Open  | [ ] Accepted  | [ ] Rejected  | [ ] Deferred
+**Status:** [ ] Open  | [x] Accepted  | [ ] Rejected  | [ ] Deferred
 
 ## Copilot's Comment
 
@@ -36,9 +36,9 @@ DateTime.TryParse(mtimeStr, null, DateTimeStyles.RoundtripKind, out var mtime)
 
 ## Resolution
 
-**Decision:** (pending)  
-**Approach:** (to be determined)  
-**Committed:** No
+**Decision:** Accepted  
+**Approach:** Added `DateTimeStyles.RoundtripKind` to explicitly preserve UTC kind from the "O" format string  
+**Committed:** Yes - `fix: use RoundtripKind for UTC datetime parsing in Azure provider`
 
 ---
 *PR #21 | Created: 2026-01-12*
