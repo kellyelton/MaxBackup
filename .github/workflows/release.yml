@@ -8,6 +8,7 @@ on:
       - 'LICENSE'
       - '.gitignore'
       - 'manifests/**'
+      - 'docs/**'
 
 # Ensure releases run synchronously - only one at a time across all branches
 concurrency:
