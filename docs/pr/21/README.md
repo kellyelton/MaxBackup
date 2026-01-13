@@ -20,4 +20,4 @@ Copilot code review comments for the Azure Blob Storage provider PR.
 | 14 | [x] | `ProviderCommand.cs` | [Unused isVerbose variable](14-unused-isverbose.md) |
 | 15 | [x] | `ProviderCommand.cs` | [Unused blob variable](15-unused-blob.md) |
 | 16 | [x] | `JobsCommand.cs` | [Combine if statements](16-combine-if.md) |
-| 17 | [ ] | `ProviderCommand.cs` | [Use ternary for branches](17-ternary-return.md) |
+| 17 | [x] | `ProviderCommand.cs` | [Use ternary for branches](17-ternary-return.md) |
