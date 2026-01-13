@@ -211,9 +211,11 @@ public static class BackupExecutor
             if (remoteIndex.TryGetValue(lookupPath, out var remoteFile))
             {
                 // Compare size and modification time
+                // Note: We use exact timestamp comparison (no tolerance) because we store the exact
+                // mtime in blob metadata ourselves. Any tolerance could skip legitimately changed files.
                 var localMtime = localFileInfo.LastWriteTimeUtc;
                 var sizesMatch = remoteFile.OriginalSize == localFileInfo.Length;
-                var timesMatch = Math.Abs((localMtime - remoteFile.OriginalMtimeUtc).TotalSeconds) < 2;
+                var timesMatch = localMtime == remoteFile.OriginalMtimeUtc;
 
                 if (sizesMatch && timesMatch)
                 {
@@ -294,14 +296,14 @@ public static class BackupExecutor
         }
     }
 
-    private static string FormatBytes(long bytes)
+    internal static string FormatBytes(long bytes)
     {
         return bytes switch
         {
             < 1024 => $"{bytes} bytes",
-            < 1024 * 1024 => $"{bytes / 1024} KB",
-            < 1024 * 1024 * 1024 => $"{bytes / (1024 * 1024)} MB",
-            _ => $"{bytes / (1024 * 1024 * 1024)} GB"
+            < 1024 * 1024 => $"{bytes / 1024.0:0.#} KB",
+            < 1024 * 1024 * 1024 => $"{bytes / (1024.0 * 1024):0.#} MB",
+            _ => $"{bytes / (1024.0 * 1024 * 1024):0.#} GB"
         };
     }
 

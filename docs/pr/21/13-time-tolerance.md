@@ -3,7 +3,7 @@
 **File:** `MaxBackup.ServiceApp/BackupExecutor.cs`  
 **Line:** 216  
 **Comment ID:** 2683822877  
-**Status:** [ ] Open  | [ ] Accepted  | [ ] Rejected  | [ ] Deferred
+**Status:** [ ] Open  | [x] Accepted  | [ ] Rejected  | [ ] Deferred
 
 ## Copilot's Comment
 
@@ -17,8 +17,6 @@ var timesMatch = timeDifference <= TimeSpan.FromSeconds(5);
 
 ## Discussion
 
-<!-- Agent and user discuss the issue here -->
-
 **Current code:**
 ```csharp
 var timesMatch = Math.Abs((localMtime - remoteFile.OriginalMtimeUtc).TotalSeconds) < 2;
@@ -27,19 +25,27 @@ var timesMatch = Math.Abs((localMtime - remoteFile.OriginalMtimeUtc).TotalSecond
 **Analysis:**
 - We store the exact mtime in blob metadata in ISO 8601 format
 - We're comparing our own stored metadata, not Azure's blob timestamp
-- 2 seconds is already generous for filesystem timestamp precision
-- Using `.Duration()` is cleaner than `Math.Abs()`
+- Since we control both write and read of the mtime, there's no cloud drift
+- Any tolerance could actually cause bugs - files modified within the tolerance window would be incorrectly skipped
 
-**Options:**
-1. **Use Duration() with 5s tolerance** - Cleaner code, more robust
-2. **Use Duration() with 2s tolerance** - Cleaner code, same behavior
-3. **Keep as-is** - Works fine in practice
+**User decision:** Remove tolerance entirely. Use exact timestamp comparison since we store and retrieve our own metadata.
 
 ## Resolution
 
-**Decision:** (pending)  
-**Approach:** (to be determined)  
+**Decision:** Modified  
+**Approach:** Removed tolerance entirely, using exact equality comparison (`==`) instead of tolerance-based comparison. Added comment explaining why no tolerance is used to prevent future regression.
 **Committed:** No
 
+**Change made:**
+```csharp
+// Before
+var timesMatch = Math.Abs((localMtime - remoteFile.OriginalMtimeUtc).TotalSeconds) < 2;
+
+// After (with explanatory comment)
+// Note: We use exact timestamp comparison (no tolerance) because we store the exact
+// mtime in blob metadata ourselves. Any tolerance could skip legitimately changed files.
+var timesMatch = localMtime == remoteFile.OriginalMtimeUtc;
+```
+
 ---
-*PR #21 | Created: 2026-01-12*
+*PR #21 | Created: 2026-01-12 | Resolved: 2026-01-12*
