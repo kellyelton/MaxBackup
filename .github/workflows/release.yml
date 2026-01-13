@@ -95,14 +95,6 @@ jobs:
         files: Max.Installer.Package/bin/x64/Release/en-US/Max.Installer.Package.msi
         generate_release_notes: true
 
-    - name: Submit to WinGet
-      uses: vedantmgoyal2009/winget-releaser@v2
-      with:
-        identifier: KellyElton.Max.Backup
-        installers-regex: '.*\.msi$'
-        token: ${{ secrets.WINGET_TOKEN }}
-        release-tag: ${{ steps.version.outputs.majorMinorPatch }}
-
     - name: Push to Chocolatey
       run: |
         # Compute SHA256 checksum of the MSI
@@ -118,6 +110,14 @@ jobs:
         # Pack and push
         choco pack chocolatey/KellyElton.Max.Backup.nuspec --version ${{ steps.version.outputs.majorMinorPatch }}
         choco push KellyElton.Max.Backup.${{ steps.version.outputs.majorMinorPatch }}.nupkg --source https://push.chocolatey.org/ --api-key ${{ secrets.CHOCOLATEY_API_KEY }}
+
+    - name: Submit to WinGet
+      uses: vedantmgoyal2009/winget-releaser@v2
+      with:
+        identifier: KellyElton.Max.Backup
+        installers-regex: '.*\.msi$'
+        token: ${{ secrets.WINGET_TOKEN }}
+        release-tag: ${{ steps.version.outputs.majorMinorPatch }}
 
     - name: Find WinGet PR
       id: wingetPr
