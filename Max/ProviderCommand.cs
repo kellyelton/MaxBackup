@@ -72,7 +72,6 @@ public sealed class ProviderCommand : Command
             this.SetAction(async parseResult =>
             {
                 var configFilePath = GetConfigPath(parseResult, configPath);
-                var isVerbose = parseResult.GetValue(verbose);
 
                 // Get values from command line (may be null for interactive mode)
                 var type = parseResult.GetValue(_typeOpt);
