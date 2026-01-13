@@ -105,6 +105,17 @@ jobs:
 
     - name: Push to Chocolatey
       run: |
+        # Compute SHA256 checksum of the MSI
+        $msiPath = "Max.Installer.Package\bin\x64\Release\en-US\Max.Installer.Package.msi"
+        $checksum = (Get-FileHash $msiPath -Algorithm SHA256).Hash
+        Write-Output "MSI Checksum (SHA256): $checksum"
+        
+        # Inject checksum into chocolateyInstall.ps1
+        $installScript = "chocolatey\tools\chocolateyInstall.ps1"
+        (Get-Content $installScript -Raw).Replace('__CHECKSUM_PLACEHOLDER__', $checksum) | Set-Content $installScript -NoNewline
+        Write-Output "Injected checksum into $installScript"
+        
+        # Pack and push
         choco pack chocolatey/KellyElton.Max.Backup.nuspec --version ${{ steps.version.outputs.majorMinorPatch }}
         choco push KellyElton.Max.Backup.${{ steps.version.outputs.majorMinorPatch }}.nupkg --source https://push.chocolatey.org/ --api-key ${{ secrets.CHOCOLATEY_API_KEY }}
 
