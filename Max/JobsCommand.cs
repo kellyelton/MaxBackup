@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.CommandLine;
 using System.Text.Json;
 using Spectre.Console;
@@ -249,8 +249,22 @@ namespace max
         }
     }
 
+    /// <summary>Root configuration containing backup settings and optional cloud providers.</summary>
+    /// <param name="Backup">Backup job definitions.</param>
+    /// <param name="Providers">Cloud storage provider configurations, or null if only local backups are used.</param>
     public record Config(Backup Backup, ProviderConfig[]? Providers = null);
+
+    /// <summary>Container for backup job definitions.</summary>
+    /// <param name="Jobs">Array of backup jobs to execute.</param>
     public record Backup(Job[] Jobs);
+
+    /// <summary>Backup job configuration defining source, destination, and file filters.</summary>
+    /// <param name="Name">Display name for the job.</param>
+    /// <param name="Source">Source directory path to back up.</param>
+    /// <param name="Destination">Destination path for local backup, or blob prefix for cloud backup.</param>
+    /// <param name="Include">Glob patterns for files to include.</param>
+    /// <param name="Exclude">Glob patterns for files to exclude.</param>
+    /// <param name="Provider">Name of a configured cloud provider for cloud backup, or null for local backup.</param>
     public record Job(
         string Name, 
         string Source, 

@@ -3,7 +3,7 @@
 **File:** `Max/JobsCommand.cs`  
 **Line:** 254-260  
 **Comment ID:** 2683822869  
-**Status:** [ ] Open  | [ ] Accepted  | [ ] Rejected  | [ ] Deferred
+**Status:** [ ] Open  | [x] Accepted  | [ ] Rejected  | [ ] Deferred
 
 ## Copilot's Comment
 
@@ -31,9 +31,9 @@ public record Job(
 
 ## Resolution
 
-**Decision:** (pending)  
-**Approach:** (to be determined)  
-**Committed:** No
+**Decision:** Accepted  
+**Approach:** Added XML documentation to Config, Backup, and Job records explaining all parameters including Provider behavior (null = local backup, non-null = cloud backup).  
+**Committed:** Yes
 
 ---
 *PR #21 | Created: 2026-01-12*
