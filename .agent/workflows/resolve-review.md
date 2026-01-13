@@ -56,7 +56,7 @@ gh api repos/{owner}/{repo}/pulls/{PR_NUMBER}/comments
 **Committed:** No
 
 ---
-*PR #21 | Created: {date}*
+*PR {PR_NUMBER} | Created: {date}*
 ```
 
 5. Create an index file `docs/pr/{PR_NUMBER}/README.md` linking all comments
@@ -111,13 +111,48 @@ gh api repos/{owner}/{repo}/pulls/{PR_NUMBER}/comments
    }' -f id="{THREAD_ID}"
    ```
 
-9. **STAGING AND COMMITTING CHANGES:** Stage and commit both code changes and updated `docs/pr/` tracking documents.
+9. **REPLY TO THE COMMENT ON GITHUB:** Always leave a reply explaining the resolution.
+
+   > [!CAUTION]
+   > **GitHub Auto-linking Warning:** NEVER use `#` followed by a number in replies (e.g., `#4`, `#21`).
+   > GitHub auto-converts `#N` into links to issue/PR N, causing confusion.
+   > - **BAD:** "Fixed as part of comment #4" → Links to unrelated issue
+   > - **GOOD:** "Fixed as part of the duplicate regex comment" → No auto-link
+   > Always reference other comments by DESCRIPTION, not number.
+
+   **If ACCEPTED/MODIFIED:**
    ```powershell
-   git add <modified_files> docs/pr/{PR_NUMBER}/
-   git commit -m "fix: resolve PR review comment #{N} - {description}"
+   pwsh .agents/tools/pr-review.ps1 reply {PR_NUMBER} {COMMENT_ID} "Fixed - [brief description of what was changed]"
    ```
 
-10. **DONE:** This completes the workflow for this comment. 
+   **If REJECTED (MANDATORY - always explain why):**
+   ```powershell
+   pwsh .agents/tools/pr-review.ps1 reply {PR_NUMBER} {COMMENT_ID} "Declining this suggestion because [reason]."
+   ```
+
+   **If DEFERRED:**
+   ```powershell
+   pwsh .agents/tools/pr-review.ps1 reply {PR_NUMBER} {COMMENT_ID} "Good point - deferring to a future PR. [Brief reason]"
+   ```
+
+10. **STAGING AND COMMITTING CHANGES:** Stage and commit both code changes and updated `docs/pr/` tracking documents.
+    
+    > [!WARNING]
+    > Do NOT use `#{N}` in commit messages - it creates GitHub auto-links.
+
+    If code was changed:
+    ```powershell
+    git add <modified_files> docs/pr/{PR_NUMBER}/
+    git commit -m "fix: resolve PR review - {description}"
+    ```
+
+    If only rejected/deferred (no code changes):
+    ```powershell
+    git add docs/pr/{PR_NUMBER}/
+    git commit -m "docs: resolve PR review comment - {description}"
+    ```
+
+11. **DONE:** This completes the workflow for this comment. 
     - Update the individual document status to "Accepted" and "Committed: Yes".
     - **MANDATORY:** Check off the comment in the `docs/pr/{PR_NUMBER}/README.md` index table by changing `[ ]` to `[x]`.
     - **STOP:** Do not proceed to another comment in this conversation.
