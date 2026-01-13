@@ -295,7 +295,7 @@ public sealed class ProviderCommand : Command
                 await AnsiConsole.Status()
                     .StartAsync("Verifying connection...", async ctx =>
                     {
-                        var connectionString = $"DefaultEndpointsProtocol=https;AccountName={accountName};AccountKey={accountKey};EndpointSuffix=core.windows.net";
+                        var connectionString = AzureBlobProviderConfig.BuildConnectionString(accountName, accountKey);
                         var containerClient = new BlobContainerClient(connectionString, containerName);
 
                         ctx.Status("Creating container if needed...");
@@ -486,7 +486,7 @@ public sealed class ProviderCommand : Command
                         return 1;
                     }
 
-                    var connectionString = $"DefaultEndpointsProtocol=https;AccountName={azure.AccountName};AccountKey={decryptedKey};EndpointSuffix=core.windows.net";
+                    var connectionString = AzureBlobProviderConfig.BuildConnectionString(azure.AccountName, decryptedKey);
                     var containerClient = new BlobContainerClient(connectionString, azure.ContainerName);
 
                     await AnsiConsole.Status()

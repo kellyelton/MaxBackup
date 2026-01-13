@@ -3,7 +3,7 @@
 **File:** `Max/ProviderCommand.cs`  
 **Line:** 306  
 **Comment ID:** 2683822852  
-**Status:** [ ] Open  | [ ] Accepted  | [ ] Rejected  | [ ] Deferred
+**Status:** [x] Open  | [x] Accepted  | [ ] Rejected  | [ ] Deferred
 
 ## Copilot's Comment
 
@@ -28,9 +28,9 @@ The connection string is built inline multiple times (lines 306, 497) with the s
 
 ## Resolution
 
-**Decision:** (pending)  
-**Approach:** (to be determined)  
-**Committed:** No
+**Decision:** Accepted  
+**Approach:** Added a static `AzureBlobProviderConfig.BuildConnectionString(string accountName, string accountKey)` helper method. The existing instance method now delegates to the static helper. Both call sites in ProviderCommand.cs (VerifyConnectionAsync and TestCommand) now use the static helper.  
+**Committed:** Pending
 
 ---
 *PR #21 | Created: 2026-01-12*

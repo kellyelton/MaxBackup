@@ -89,12 +89,15 @@ public class AzureBlobProviderConfig : ProviderConfig
     }
 
     /// <summary>
+    /// Builds an Azure Blob Storage connection string from the given credentials.
+    /// </summary>
+    public static string BuildConnectionString(string accountName, string accountKey)
+        => $"DefaultEndpointsProtocol=https;AccountName={accountName};AccountKey={accountKey};EndpointSuffix=core.windows.net";
+
+    /// <summary>
     /// Builds the connection string for this provider.
     /// Automatically decrypts the account key if encrypted.
     /// </summary>
     public string BuildConnectionString()
-    {
-        var key = GetDecryptedAccountKey();
-        return $"DefaultEndpointsProtocol=https;AccountName={AccountName};AccountKey={key};EndpointSuffix=core.windows.net";
-    }
+        => BuildConnectionString(AccountName, GetDecryptedAccountKey());
 }
