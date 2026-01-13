@@ -120,13 +120,11 @@ namespace max
                     }
                     
                     // Validate provider if specified
-                    if (!string.IsNullOrEmpty(provider))
+                    if (!string.IsNullOrEmpty(provider) &&
+                        (config.Providers == null || !config.Providers.Any(p => p.Name == provider)))
                     {
-                        if (config.Providers == null || !config.Providers.Any(p => p.Name == provider))
-                        {
-                            Console.Error.WriteLine($"Provider '{provider}' not found. Use 'max provider list' to see available providers.");
-                            return 1;
-                        }
+                        Console.Error.WriteLine($"Provider '{provider}' not found. Use 'max provider list' to see available providers.");
+                        return 1;
                     }
                     
                     var jobs = config.Backup.Jobs.ToList();

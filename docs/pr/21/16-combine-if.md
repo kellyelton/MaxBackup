@@ -3,7 +3,7 @@
 **File:** `Max/JobsCommand.cs`  
 **Line:** 123-129  
 **Comment ID:** 2683822904  
-**Status:** [ ] Open  | [ ] Accepted  | [ ] Rejected  | [ ] Deferred
+**Status:** [ ] Open  | [x] Accepted  | [ ] Rejected  | [ ] Deferred
 
 ## Copilot's Comment
 
@@ -43,9 +43,9 @@ if (!string.IsNullOrEmpty(provider))
 
 ## Resolution
 
-**Decision:** (pending)  
-**Approach:** (to be determined)  
-**Committed:** No
+**Decision:** Accepted  
+**Approach:** Combined nested if statements as suggested  
+**Committed:** Yes
 
 ---
 *PR #21 | Created: 2026-01-12*
