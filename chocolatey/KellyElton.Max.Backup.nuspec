@@ -7,11 +7,17 @@
     <authors>Kelly Elton</authors>
     <owners>Kelly Elton</owners>
     <projectUrl>https://github.com/kellyelton/MaxBackup</projectUrl>
+    <licenseUrl>https://github.com/kellyelton/MaxBackup/blob/master/LICENSE</licenseUrl>
     <requireLicenseAcceptance>false</requireLicenseAcceptance>
-    <description>A background service that backs up files.</description>
-    <summary>Background backup service</summary>
-    <tags>backup service utility maxbackup max</tags>
-    <packageSourceUrl>https://github.com/kellyelton/MaxBackup</packageSourceUrl>
+    <description>A background service that backs up files. MaxBackup runs as a Windows service and automatically backs up configured directories to your specified destinations.</description>
+    <summary>Background backup service for Windows</summary>
+    <releaseNotes>https://github.com/kellyelton/MaxBackup/releases</releaseNotes>
+    <copyright>Copyright (c) Kelly Elton</copyright>
+    <tags>backup service utility maxbackup windows-service file-backup</tags>
+    <packageSourceUrl>https://github.com/kellyelton/MaxBackup/tree/master/chocolatey</packageSourceUrl>
+    <projectSourceUrl>https://github.com/kellyelton/MaxBackup</projectSourceUrl>
+    <bugTrackerUrl>https://github.com/kellyelton/MaxBackup/issues</bugTrackerUrl>
+    <docsUrl>https://github.com/kellyelton/MaxBackup#readme</docsUrl>
   </metadata>
   <files>
     <file src="tools\**" target="tools" />

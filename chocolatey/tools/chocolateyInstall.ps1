@@ -4,8 +4,14 @@ $url = "https://github.com/kellyelton/MaxBackup/releases/download/$($env:Chocola
 $silentArgs = '/qn /norestart'
 $validExitCodes = @(0, 3010, 1641)
 
+# Checksum is injected by CI workflow at build time
+$checksum = '__CHECKSUM_PLACEHOLDER__'
+$checksumType = 'sha256'
+
 Install-ChocolateyPackage -PackageName $packageName `
                           -FileType $fileType `
                           -Url $url `
                           -SilentArgs $silentArgs `
-                          -ValidExitCodes $validExitCodes
+                          -ValidExitCodes $validExitCodes `
+                          -Checksum $checksum `
+                          -ChecksumType $checksumType
