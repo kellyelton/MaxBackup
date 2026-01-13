@@ -8,7 +8,7 @@ Copilot code review comments for the Azure Blob Storage provider PR.
 | 2 | [x] | `CredentialProtection.cs` | [Empty string handling in Encrypt](2-encrypt-empty-string.md) |
 | 3 | [x] | `BackupExecutor.cs` | [Progress callback throttling](3-progress-throttling.md) |
 | 4 | [x] | `ProviderCommand.cs` | [Duplicate regex validation](4-duplicate-regex.md) |
-| 5 | [ ] | `ProviderCommand.cs` | [Redundant lowercase check](5-redundant-lowercase.md) |
+| 5 | [x] | `ProviderCommand.cs` | [Redundant lowercase check](5-redundant-lowercase.md) |
 | 6 | [ ] | `BackupExecutor.cs` | [FormatBytes precision](6-formatbytes-precision.md) |
 | 7 | [ ] | `AzureBlobStorageProvider.cs` | [Missing 403/429 error handling](7-azure-error-handling.md) |
 | 8 | [ ] | `AzureBlobStorageProvider.cs` | [DateTime UTC parsing](8-datetime-utc-parsing.md) |

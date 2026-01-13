@@ -3,7 +3,7 @@
 **File:** `Max/ProviderCommand.cs`  
 **Line:** 52-53  
 **Comment ID:** 2683822817  
-**Status:** [ ] Open  | [ ] Accepted  | [ ] Rejected  | [ ] Deferred
+**Status:** [ ] Open  | [x] Accepted  | [ ] Rejected  | [ ] Deferred
 
 ## Copilot's Comment
 
@@ -33,9 +33,9 @@ if (!System.Text.RegularExpressions.Regex.IsMatch(name, @"^[a-z][a-z0-9_-]*$"))
 
 ## Resolution
 
-**Decision:** (pending)  
-**Approach:** (to be determined)  
-**Committed:** No
+**Decision:** Accepted  
+**Approach:** Already resolved as part of comment #4 refactoring. Validation now uses centralized `ProviderConfig.ValidateNameGetError()` with single regex pattern.  
+**Committed:** Yes (previous commit)
 
 ---
 *PR #21 | Created: 2026-01-12*
