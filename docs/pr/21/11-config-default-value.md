@@ -3,7 +3,7 @@
 **File:** `Max/JobsCommand.cs`  
 **Line:** 252  
 **Comment ID:** 2683822865  
-**Status:** [x] Accepted  | [ ] Rejected  | [ ] Deferred
+**Status:** [ ] Accepted  | [x] Rejected  | [ ] Deferred
 
 ## Copilot's Comment
 
