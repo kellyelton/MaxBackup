@@ -3,8 +3,18 @@ name: CI
 on:
   pull_request:
     branches: [ "master" ]
+    paths-ignore:
+      - '**.md'
+      - 'LICENSE'
+      - '.gitignore'
+      - 'docs/**'
   push:
     branches: [ "test" ]
+    paths-ignore:
+      - '**.md'
+      - 'LICENSE'
+      - '.gitignore'
+      - 'docs/**'
 
 jobs:
   build-and-test:
