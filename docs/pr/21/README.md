@@ -9,8 +9,8 @@ Copilot code review comments for the Azure Blob Storage provider PR.
 | 3 | [x] | `BackupExecutor.cs` | [Progress callback throttling](3-progress-throttling.md) |
 | 4 | [x] | `ProviderCommand.cs` | [Duplicate regex validation](4-duplicate-regex.md) |
 | 5 | [x] | `ProviderCommand.cs` | [Redundant lowercase check](5-redundant-lowercase.md) |
-| 6 | [ ] | `BackupExecutor.cs` | [FormatBytes precision](6-formatbytes-precision.md) |
-| 7 | [ ] | `AzureBlobStorageProvider.cs` | [Missing 403/429 error handling](7-azure-error-handling.md) |
+| 6 | [x] | `BackupExecutor.cs` | [FormatBytes precision](6-formatbytes-precision.md) |
+| 7 | [x] | `AzureBlobStorageProvider.cs` | [Missing 403/429 error handling](7-azure-error-handling.md) |
 | 8 | [ ] | `AzureBlobStorageProvider.cs` | [DateTime UTC parsing](8-datetime-utc-parsing.md) |
 | 9 | [ ] | `ProviderCommand.cs` | [Duplicate connection string](9-duplicate-connection-string.md) |
 | 10 | [ ] | `ProviderCommand.cs` | [Duplicate error message mapping](10-duplicate-error-mapping.md) |

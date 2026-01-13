@@ -3,7 +3,7 @@
 **File:** `MaxBackup.ServiceApp/BackupExecutor.cs`  
 **Line:** 299-305  
 **Comment ID:** 2683822824  
-**Status:** [ ] Open  | [ ] Accepted  | [ ] Rejected  | [ ] Deferred
+**Status:** [x] Open  | [x] Accepted  | [ ] Rejected  | [ ] Deferred
 
 ## Copilot's Comment
 
@@ -46,11 +46,13 @@ return $"{value:0.##} {units[unitIndex]}";
 2. **Keep as-is** - Integer KB/MB/GB is sufficient for logs
 3. **Compromise** - Use 1 decimal place: "1.5 KB"
 
+**User decision:** Accept with modification - keep the switch expression pattern (simpler) but use floating-point division. Add unit tests for debugging future issues.
+
 ## Resolution
 
-**Decision:** (pending)  
-**Approach:** (to be determined)  
-**Committed:** No
+**Decision:** Accepted (modified)  
+**Approach:** Updated to use floating-point division with format `0.#` (one decimal place). Kept switch expression instead of loop. Added 16 unit tests covering bytes/KB/MB/GB ranges.  
+**Committed:** Pending
 
 ---
 *PR #21 | Created: 2026-01-12*

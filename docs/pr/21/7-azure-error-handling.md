@@ -3,7 +3,7 @@
 **File:** `MaxBackup.ServiceApp/Providers/AzureBlobStorageProvider.cs`  
 **Line:** 99  
 **Comment ID:** 2683822838  
-**Status:** [ ] Open  | [ ] Accepted  | [ ] Rejected  | [ ] Deferred
+**Status:** [ ] Open  | [ ] Accepted  | [x] Rejected  | [ ] Deferred
 
 ## Copilot's Comment
 
@@ -31,9 +31,9 @@ The method checks for 404 errors when getting blob properties, but doesn't handl
 
 ## Resolution
 
-**Decision:** (pending)  
-**Approach:** (to be determined)  
-**Committed:** No
+**Decision:** Rejected  
+**Approach:** Current behavior is sufficient - 403/429 errors propagate with full stack traces. Azure SDK has built-in retry for 429, and TestConnectionAsync already provides friendly error messages for auth failures.  
+**Committed:** No (no code changes needed)
 
 ---
 *PR #21 | Created: 2026-01-12*
