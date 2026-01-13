@@ -40,8 +40,7 @@ Never lose work - always stash first!
 ## Branch Rules
 
 - **master**: Protected. Stable releases. Never commit directly.
-- **test**: CI validation. Never commit directly.
-- **Feature branches**: ALWAYS create from master. NEVER from test.
+- **Feature branches**: ALWAYS create from master.
 
 ## Workflow for Changes
 
@@ -53,48 +52,40 @@ Never lose work - always stash first!
 6. Build and run unit tests locally - if either fail, go back to step 4
 7. Commit changes
 8. `git push origin feature/your-feature` - Push feature branch to origin
-9. `git switch test && git pull --ff-only origin test` - Get latest test
-10. `git merge feature/your-feature --no-edit && git push origin test` - Merge to test
-11. Wait for CI workflow on test branch:
+9. Create PR from feature branch to master:
    ```powershell
-   gh run list --branch test --limit 3 --json databaseId,status,conclusion,workflowName
-   gh run watch <run-id>
+   gh pr create --base master --head feature/your-feature --title "Title" --body "Body"
    ```
-   - If CI fails: go back to step 4 to fix the issue
-   - If CI succeeds: proceed to next step
-12. **`<wait on user>`** - Ask user if ready to create PR
-13. Create PR from feature branch to master
-14. Wait for CI workflow on PR:
+10. Wait for CI workflow on PR:
     ```powershell
-    gh run list --branch feature/your-feature --limit 3 --json databaseId,status,conclusion,workflowName
+    gh run list --limit 5 --json databaseId,status,conclusion,name,headBranch
     gh run watch <run-id>
     ```
     - If CI fails: go back to step 4 to fix the issue
     - If CI succeeds: proceed to next step
-15. **`<wait on user>`** - Ask user if ready to merge
-16. Merge PR: `gh pr merge <number> --merge`
-17. Wait for Release workflow on master (skipped for docs-only changes)
+11. **`<wait on user>`** - Ask user if ready to merge (if user asked to merge, proceed; otherwise inform them PR is ready)
+12. Merge PR: `gh pr merge <number> --merge`
+13. Wait for Release workflow on master (skipped for docs-only changes)
     - If user requested no release: wait for workflow to start, then cancel it:
       ```powershell
-      gh run list --branch master --limit 3 --json databaseId,status,workflowName
+      gh run list --limit 5 --json databaseId,status,name,headBranch
       gh run cancel <run-id>
       ```
     - If releasing: wait for workflow to complete
       - If Release fails: go back to step 4 to fix the issue
       - If Release succeeds: proceed to next step
-18. Verify stable release 🎉
-19. Clean up:
-
-⚠️ **IMPORTANT**: When falling back to step 4, all previous user approvals are invalidated. You must get fresh approval at each `<wait on user>` checkpoint again.
+14. Verify stable release
+15. Clean up:
     ```powershell
     git switch master && git pull --ff-only origin master   # Get merged changes
     git branch -d feature/your-feature            # Delete local feature branch
     ```
 
+⚠️ **IMPORTANT**: When falling back to step 4, all previous user approvals are invalidated. You must get fresh approval at each `<wait on user>` checkpoint again.
+
 ## Critical Rules
 
 ### Always Ask User Before:
-- Merging master into test (or vice versa)
 - Hard resets (`git reset --hard`)
 - Rebasing
 - Force pushing (`git push --force`)
@@ -110,7 +101,7 @@ Never grab 1 item and immediately act on it. Always:
 ### gh run watch Needs a Run ID
 `gh run watch` without arguments blocks. Always:
 ```powershell
-gh run list --branch test --limit 3   # List first
+gh run list --limit 5   # List first
 gh run watch <run-id>                  # Then watch specific one
 ```
 
