@@ -485,7 +485,7 @@ public sealed class ProviderCommand : Command
                             // Test listing blobs
                             ctx.Status("Listing container contents...");
                             var blobCount = 0;
-                            await foreach (var blob in containerClient.GetBlobsAsync().Take(10))
+                            await foreach (var _ in containerClient.GetBlobsAsync().Take(10))
                             {
                                 blobCount++;
                             }

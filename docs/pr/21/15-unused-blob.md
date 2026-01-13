@@ -3,7 +3,7 @@
 **File:** `Max/ProviderCommand.cs`  
 **Line:** 506  
 **Comment ID:** 2683822895  
-**Status:** [ ] Open  | [ ] Accepted  | [ ] Rejected  | [ ] Deferred
+**Status:** [ ] Open  | [x] Accepted  | [ ] Rejected  | [ ] Deferred
 
 ## Copilot's Comment
 
@@ -34,9 +34,9 @@ await foreach (var blob in containerClient.GetBlobsAsync().Take(10))
 
 ## Resolution
 
-**Decision:** (pending)  
-**Approach:** (to be determined)  
-**Committed:** No
+**Decision:** Accepted  
+**Approach:** Changed `var blob` to `var _` discard pattern  
+**Committed:** Yes
 
 ---
 *PR #21 | Created: 2026-01-12*

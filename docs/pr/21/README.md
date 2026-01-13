@@ -18,6 +18,6 @@ Copilot code review comments for the Azure Blob Storage provider PR.
 | 12 | [x] | `JobsCommand.cs` | [Job Provider documentation](12-job-provider-docs.md) |
 | 13 | [x] | `BackupExecutor.cs` | [Time comparison tolerance](13-time-tolerance.md) |
 | 14 | [x] | `ProviderCommand.cs` | [Unused isVerbose variable](14-unused-isverbose.md) |
-| 15 | [ ] | `ProviderCommand.cs` | [Unused blob variable](15-unused-blob.md) |
+| 15 | [x] | `ProviderCommand.cs` | [Unused blob variable](15-unused-blob.md) |
 | 16 | [ ] | `JobsCommand.cs` | [Combine if statements](16-combine-if.md) |
 | 17 | [ ] | `ProviderCommand.cs` | [Use ternary for branches](17-ternary-return.md) |
