@@ -206,7 +206,7 @@ public class AzureBlobStorageProvider : IStorageProvider
         if (metadata.TryGetValue(MetadataOriginalSize, out var sizeStr) &&
             metadata.TryGetValue(MetadataOriginalMtime, out var mtimeStr) &&
             long.TryParse(sizeStr, out var size) &&
-            DateTime.TryParse(mtimeStr, out var mtime))
+            DateTime.TryParse(mtimeStr, null, System.Globalization.DateTimeStyles.RoundtripKind, out var mtime))
         {
             return new RemoteFileInfo(relativePath, size, mtime.ToUniversalTime());
         }
