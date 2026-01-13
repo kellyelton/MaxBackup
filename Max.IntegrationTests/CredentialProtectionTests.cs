@@ -6,10 +6,9 @@ namespace Max.IntegrationTests;
 public class CredentialProtectionTests
 {
     [Fact]
-    public void Encrypt_Null_ReturnsNull()
+    public void Encrypt_Null_ThrowsArgumentNullException()
     {
-        var result = CredentialProtection.Encrypt(null!);
-        Assert.Null(result);
+        Assert.Throws<ArgumentNullException>(() => CredentialProtection.Encrypt(null!));
     }
 
     [Fact]
