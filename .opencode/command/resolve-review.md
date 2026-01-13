@@ -68,12 +68,21 @@ Record the decision type (accept/reject/modify/defer) and rationale.
 
 ## Step 7: Handle Based on Decision
 
+**⚠️ CRITICAL - GitHub Auto-linking Warning:**
+When writing reply comments, NEVER use `#` followed by a number (e.g., `#4`, `#21`).
+GitHub automatically converts `#N` into a link to issue/PR N, which causes confusion.
+
+**BAD:** "Fixed as part of comment #4" → Links to unrelated issue #4
+**GOOD:** "Fixed as part of the duplicate regex comment" → No auto-link
+
+Always reference other comments by their DESCRIPTION, not their local number.
+
 ### If ACCEPTED or MODIFIED:
 1. Make code changes
 2. Verify with lsp_diagnostics
 3. Reply to comment explaining what was done:
    ```
-   pwsh .agents/tools/pr-review.ps1 reply {PR_NUMBER} {GITHUB_COMMENT_ID} "Fixed in this PR - [brief description of change]"
+   pwsh .agents/tools/pr-review.ps1 reply {PR_NUMBER} {GITHUB_COMMENT_ID} "Fixed - [brief description of what was changed]"
    ```
 
 ### If REJECTED:
@@ -91,7 +100,7 @@ Common rejection reasons to include:
 ### If DEFERRED:
 Reply acknowledging the feedback:
 ```
-pwsh .agents/tools/pr-review.ps1 reply {PR_NUMBER} {GITHUB_COMMENT_ID} "Good point - deferring to [issue/future PR]. [Brief reason for deferral]"
+pwsh .agents/tools/pr-review.ps1 reply {PR_NUMBER} {GITHUB_COMMENT_ID} "Good point - deferring to a future PR. [Brief reason for deferral]"
 ```
 
 ## Step 8: Build and Test (If Code Changed)
