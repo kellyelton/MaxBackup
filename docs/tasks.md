@@ -6,6 +6,8 @@ Ordered list of tasks to complete. Check off tasks as they're completed.
 
 ## Current Tasks
 
+- [ ] [reorder-release-deploy-steps](tasks/reorder-release-deploy-steps.md) - Move Chocolatey deploy before WinGet in release workflow
+
 ### Future Enhancements
 
 - [ ] [azure-blob-restore-capability](tasks/azure-blob-restore-capability.md) - Implement download/restore from Azure Blob Storage
