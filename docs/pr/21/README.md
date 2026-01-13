@@ -13,7 +13,7 @@ Copilot code review comments for the Azure Blob Storage provider PR.
 | 7 | [x] | `AzureBlobStorageProvider.cs` | [Missing 403/429 error handling](7-azure-error-handling.md) |
 | 8 | [x] | `AzureBlobStorageProvider.cs` | [DateTime UTC parsing](8-datetime-utc-parsing.md) |
 | 9 | [x] | `ProviderCommand.cs` | [Duplicate connection string](9-duplicate-connection-string.md) |
-| 10 | [ ] | `ProviderCommand.cs` | [Duplicate error message mapping](10-duplicate-error-mapping.md) |
+| 10 | [x] | `ProviderCommand.cs` | [Duplicate error message mapping](10-duplicate-error-mapping.md) |
 | 11 | [ ] | `JobsCommand.cs` | [Config record default value](11-config-default-value.md) |
 | 12 | [ ] | `JobsCommand.cs` | [Job Provider documentation](12-job-provider-docs.md) |
 | 13 | [ ] | `BackupExecutor.cs` | [Time comparison tolerance](13-time-tolerance.md) |

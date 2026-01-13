@@ -324,17 +324,8 @@ public sealed class ProviderCommand : Command
             }
         }
 
-        private static string GetFriendlyErrorMessage(Azure.RequestFailedException ex)
-        {
-            return ex.ErrorCode switch
-            {
-                "AuthenticationFailed" => "Authentication failed. Please verify your account name and access key.",
-                "AccountIsDisabled" => "The storage account is disabled.",
-                "AuthorizationFailure" => "Authorization failed. The access key may not have sufficient permissions.",
-                "InvalidResourceName" => "Invalid container name. Container names must be 3-63 characters, lowercase letters, numbers, and hyphens only.",
-                _ => $"Azure error: {ex.Message}"
-            };
-        }
+        private static string GetFriendlyErrorMessage(Azure.RequestFailedException ex) =>
+            AzureErrorHelper.GetFriendlyErrorMessage(ex);
     }
 
     public class ListCommand : Command
