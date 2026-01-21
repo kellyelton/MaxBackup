@@ -128,7 +128,7 @@ public sealed class ProviderCommand : Command
             AnsiConsole.Write(new Panel(
                 "[dim]To get your Azure credentials:[/]\n" +
                 "1. Go to [link=https://portal.azure.com]https://portal.azure.com[/]\n" +
-                "2. Navigate to: [bold]Storage accounts[/] > [bold][Your Account][/]\n" +
+                "2. Navigate to: [bold]Storage accounts[/] > [bold][[Your Account]][/]\n" +
                 "3. Click: [bold]Security + networking[/] > [bold]Access keys[/]\n" +
                 "4. Copy the [bold]Storage account name[/] and one of the [bold]Keys[/]")
                 .Header("[bold]Azure Setup Instructions[/]")
