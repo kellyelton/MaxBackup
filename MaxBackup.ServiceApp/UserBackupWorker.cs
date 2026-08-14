@@ -56,7 +56,7 @@ public class UserBackupWorker
                     .ValidateDataAnnotations();
 
                 // Bind provider configs - use the root config to get both sections
-                services.Configure<ServiceRootConfig>(context.Configuration);
+                services.ConfigureServiceRootConfig(context.Configuration);
 
                 // Add the backup executor as a hosted service
                 services.AddSingleton(sp => userProfilePath);
