@@ -35,6 +35,28 @@ winget install KellyElton.Max.Backup
 
 After installation, the `max` command will be available in your terminal.
 
+### Upgrades and uninstalling
+
+By default, uninstalling preserves service registration and logs in
+`%ProgramData%\MaxBackup`. To remove either during an explicit uninstall, run
+from an administrator terminal using this version's MSI:
+
+```powershell
+msiexec /x "Max.Installer.Package.msi" REMOVECONFIG=1 REMOVELOGS=1
+```
+
+Both flags default to `0` and can be used independently. `REMOVECONFIG=1` removes
+only the service's `config.json` (all users' registrations and service settings).
+`REMOVELOGS=1` removes only `service*.log` files from the service's `logs` folder.
+Neither flag removes user job definitions, personal backup logs, source files,
+or backed-up files. Cleanup is disabled during upgrades, installs, and repairs.
+
+**Upgrading from 0.2.32 or earlier:** the old version's uninstaller can delete that
+folder before the new installer runs. Save a copy outside the folder before
+upgrading if you need to retain its registration or logs. After upgrading, check
+`max status` and run `max register` if needed. User job definitions in
+`%USERPROFILE%\maxbackupconfig.json` are stored separately and are preserved.
+
 ## Quick Start
 
 ### 1. Create a backup job

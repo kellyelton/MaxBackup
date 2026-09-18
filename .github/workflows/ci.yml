@@ -46,3 +46,6 @@ jobs:
 
     - name: Build installer
       run: dotnet build Max.Installer.Package\Max.Installer.Package.wixproj -c Release -p:Platform=x64
+
+    - name: Verify installer cleanup flags
+      run: ./Test-Installer.ps1 -Path Max.Installer.Package/bin/x64/Release/en-US/Max.Installer.Package.msi
