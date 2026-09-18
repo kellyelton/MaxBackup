@@ -238,6 +238,11 @@ try {
         throw "Installer not found at expected path: $InstallerPath"
     }
 
+    if (-not $SkipTests) {
+        Write-Step "Verifying installer retention and cleanup flags"
+        & (Join-Path $ScriptRoot "Test-Installer.ps1") -Path $InstallerPath
+    }
+
     Write-ColorOutput "`n╔═══════════════════════════════════════════════════════════╗" -ForegroundColor Green
     Write-ColorOutput "║              Build Completed Successfully!               ║" -ForegroundColor Green
     Write-ColorOutput "╚═══════════════════════════════════════════════════════════╝`n" -ForegroundColor Green

@@ -80,6 +80,9 @@ jobs:
       run: dotnet build Max.Installer.Package\Max.Installer.Package.wixproj -c Release -p:Platform=x64
         /p:AssemblyVersion=${{ steps.version.outputs.assemblySemVer }} /p:Version=${{ steps.version.outputs.assemblySemVer }}
 
+    - name: Verify installer cleanup flags
+      run: ./Test-Installer.ps1 -Path Max.Installer.Package/bin/x64/Release/en-US/Max.Installer.Package.msi
+
     - name: Upload build artifacts
       uses: actions/upload-artifact@v6
       with:
