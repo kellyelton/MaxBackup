@@ -11,6 +11,7 @@ MaxBackup is a one-way, additive backup utility. It copies new and changed files
 - Runs quietly in the background as a Windows service
 - Backs up to local drives, network shares, or Azure Blob Storage
 - Uses glob patterns to include or exclude specific files
+- Supports per-folder `.maxbackupignore` files for repository-specific exclusions
 - Checks for changes every 10 seconds
 - Multi-user support (each Windows user can have their own backup jobs)
 
@@ -107,6 +108,53 @@ Use `~` as shorthand for your user profile folder:
 max jobs create "Configs" "~" "D:\Backups\HomeConfigs" --include ".gitconfig" --include ".ssh/**" --include "Documents/PowerShell/**"
 ```
 
+### Exclude files within an individual repository
+
+If your job backs up all of `F:\Source`, create `F:\Source\MyApp\.maxbackupignore`:
+
+```text
+# Dependencies at any depth in this repository
+node_modules/
+
+# Build output immediately inside this repository
+/dist/
+
+# Generated assets at this specific path
+assets/generated/
+
+# Temporary files at any depth
+*.tmp
+```
+
+These rules apply to `MyApp` and its subfolders. Other repositories keep their own
+backup selection. Put an ignore file in a subfolder to add exclusions there;
+parent rules still apply. Files above the job's source folder are not consulted.
+
+Use one pattern per line, `/` for paths, `*` within a path segment, and `**` across
+directory levels. Matching is case-insensitive. Blank lines and full-line `#`
+comments are allowed; surrounding whitespace is trimmed.
+
+| Pattern | Excludes |
+|---------|----------|
+| `node_modules/` | Directories named `node_modules` anywhere below this ignore file |
+| `/dist/` | The `dist` directory directly beside this ignore file |
+| `assets/generated/` | That exact subtree relative to this ignore file |
+| `*.tmp` | Matching names at any depth |
+| `**/generated/*.tmp` | Temporary files directly inside any `generated` directory |
+
+A trailing `/` means directories only. Without it, a pattern can match files or
+directories. Matching directories are skipped before their contents are scanned.
+Existing job include/exclude filters still apply, and exclusions always win.
+
+This is an exclusion-only format: `!` re-inclusion rules, backslash paths,
+drive-qualified paths, and `..` traversal are rejected with a logged error.
+It does not read `.gitignore` or support the complete Git ignore syntax.
+
+Rules are reread on the next backup pass for both local and cloud jobs. The ignore
+file itself is eligible for backup unless excluded. An invalid or unreadable
+ignore file stops transfers for that job pass and logs the cause. Previously
+backed-up files remain in the destination when you add an exclusion.
+
 ## CLI Reference
 
 ### Managing Jobs
@@ -177,6 +225,8 @@ After editing the config file, changes are picked up automatically (no restart n
 **Files not being backed up?**
 - Make sure your include patterns match the files (use `**` to match everything)
 - Check for exclude patterns that might be filtering them out
+- Check `.maxbackupignore` files in the source folder and the file's parent folders
+- Check the backup log for an invalid or unreadable `.maxbackupignore` that stopped the job pass
 - Files that are open/locked by other programs will be skipped and retried later
 
 **Permission errors?**
