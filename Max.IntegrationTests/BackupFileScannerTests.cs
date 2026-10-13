@@ -14,9 +14,10 @@ public sealed class BackupFileScannerTests : IDisposable
         Directory.CreateDirectory(Path.GetDirectoryName(full)!);
         File.WriteAllText(full, text);
     }
-    private string[] Scan(string source = "", string[]? includes = null, string[]? excludes = null, CancellationToken token = default)
+    private string[] Scan(string source = "", string[]? includes = null, string[]? excludes = null)
     {
-        return BackupFileScanner.Scan(Path.Combine(root, source), includes ?? ["**/*"], excludes ?? [], token)
+        var matcher = BackupFileScanner.CreateMatcher(Path.Combine(root, source), includes ?? ["**/*"], excludes ?? []);
+        return BackupFileScanner.Scan(Path.Combine(root, source), matcher)
             .Select(x => Path.GetRelativePath(Path.Combine(root, source), x).Replace('\\', '/')).Order().ToArray();
     }
 
@@ -81,13 +82,32 @@ public sealed class BackupFileScannerTests : IDisposable
         Assert.Empty(Scan("removed"));
     }
 
+    [Theory]
+    [InlineData(false)]
+    [InlineData(true)]
+    public void DefaultExclusionsPreserveOriginalSourcePathBehavior(bool relative)
+    {
+        Write("keep.txt"); Write("scratch~");
+        Write("$Recycle.Bin"); Write("System Volume Information");
+        var source = relative ? Path.GetRelativePath(Environment.CurrentDirectory, root) : root;
+        var matcher = new Matcher().AddInclude("**/*");
+        var drive = Path.GetPathRoot(source);
+        if (drive != null && drive.Length == 3 && drive.EndsWith(":\\", StringComparison.OrdinalIgnoreCase))
+            matcher.AddExclude("$Recycle.Bin").AddExclude("System Volume Information").AddExclude("*~");
+        var expected = matcher.GetResultsInFullPath(source).Order().ToArray();
+
+        Assert.Equal(relative ? 4 : 1, expected.Length);
+        Assert.Equal(expected, BackupFileScanner.Scan(source,
+            BackupFileScanner.CreateMatcher(source, ["**/*"], [])).Order().ToArray());
+    }
+
     [Fact]
     public void DriveRootScanAppliesNestedIgnoreFiles()
     {
         Write("source/.maxbackupignore", "ignored/"); Write("source/ignored/a.txt"); Write("source/keep.txt");
         var driveRoot = Path.GetPathRoot(root)!;
         var include = Path.GetRelativePath(driveRoot, root).Replace('\\', '/') + "/source/**";
-        var files = BackupFileScanner.Scan(driveRoot, [include], [], default)
+        var files = BackupFileScanner.Scan(driveRoot, BackupFileScanner.CreateMatcher(driveRoot, [include], []))
             .Select(x => Path.GetRelativePath(root, x).Replace('\\', '/')).Order().ToArray();
         Assert.Equal(["source/.maxbackupignore", "source/keep.txt"], files);
     }
@@ -187,13 +207,6 @@ public sealed class BackupFileScannerTests : IDisposable
         Write(".maxbackupignore", "*.tmp");
         using var locked = new FileStream(Path.Combine(root, ".maxbackupignore"), FileMode.Open, FileAccess.ReadWrite, FileShare.None);
         Assert.ThrowsAny<IOException>(() => Scan());
-    }
-
-    [Fact]
-    public void CancellationPropagates()
-    {
-        using var cancel = new CancellationTokenSource(); cancel.Cancel();
-        Assert.ThrowsAny<OperationCanceledException>(() => Scan(token: cancel.Token));
     }
 
     public void Dispose() => Directory.Delete(root, true);

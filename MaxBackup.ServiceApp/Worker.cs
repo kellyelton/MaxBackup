@@ -81,6 +81,7 @@ namespace MaxBackup.ServiceApp
                     }
                 }
 
+                var matcher = BackupFileScanner.CreateMatcher(config.Source, config.Include, config.Exclude);
                 _logger.LogInformation("Scanning for files {path}", config.Source);
 
                 HashSet<string> sources = new HashSet<string>();
@@ -88,7 +89,7 @@ namespace MaxBackup.ServiceApp
 
                 using (stoppingToken.Register(() => tcs.TrySetCanceled(stoppingToken)))
                 {
-                    var matchTask = Task.Run(() => BackupFileScanner.Scan(config.Source, config.Include, config.Exclude, stoppingToken), stoppingToken);
+                    var matchTask = Task.Run(() => BackupFileScanner.Scan(config.Source, matcher), stoppingToken);
 
                     var completedTask = await Task.WhenAny(tcs.Task, matchTask);
 
@@ -102,10 +103,6 @@ namespace MaxBackup.ServiceApp
                     try
                     {
                         results = await matchTask;
-                    }
-                    catch (OperationCanceledException)
-                    {
-                        throw;
                     }
                     catch (Exception ex)
                     {

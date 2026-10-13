@@ -13,8 +13,8 @@ A whole-source backup job should preserve repository content while allowing each
 - `MaxBackup.ServiceApp/BackupFileScanner.cs` - Shared file selection with scoped ignore rules and directory pruning.
 - `MaxBackup.ServiceApp/BackupExecutor.cs` - Shared scanning for local and cloud jobs.
 - `MaxBackup.ServiceApp/Worker.cs` - Consistent scanning in the legacy local worker.
-- `Max.IntegrationTests/BackupFileScannerTests.cs` - Matching, scoping, pruning, failure, refresh, and cancellation checks.
-- `Max.IntegrationTests/BackupIgnoreExecutorTests.cs` - Local copy and cloud upload selection checks.
+- `Max.IntegrationTests/BackupFileScannerTests.cs` - Matching, scoping, pruning, failure, refresh, and source-path compatibility checks.
+- `Max.IntegrationTests/BackupIgnoreExecutorTests.cs` - Local copy, cloud upload selection, and existing cancellation handling checks.
 - `README.md` - File format, repository example, and troubleshooting.
 - `docs/features/MAXIGN-folder-backup-ignore.md` - Behavior specification.
 - `docs/tasks.md` - Task tracking.
@@ -28,7 +28,7 @@ A whole-source backup job should preserve repository content while allowing each
 - [x] Both local and cloud selection honor folder exclusions.
 - [x] Ignore edits take effect on a subsequent scan.
 - [x] Invalid/unreadable ignore files prevent that pass's transfers and report the cause.
-- [x] Cancellation propagates.
+- [x] Existing local and cloud job cancellation handling is preserved.
 - [x] Existing destination data remains retained.
 - [x] Relevant tests and the build pass; usage is documented.
 
@@ -50,11 +50,12 @@ Uses the existing [backup-executor-provider-integration](backup-executor-provide
 
 Implemented and validated on 2026-10-12; authorized for commit and PR creation, with merge and release awaiting PR review.
 
-- `dotnet test Max.IntegrationTests/Max.IntegrationTests.csproj --configuration Release`: 130 passed, including 27 scanner cases and 8 executor cases. CLI cases used the locally published CLI through `MAX_CLI_PATH`.
+- `dotnet test Max.IntegrationTests/Max.IntegrationTests.csproj --configuration Release`: 137 passed, including 28 scanner cases and 14 executor cases. CLI cases used the locally published CLI through `MAX_CLI_PATH`.
 - `dotnet test MaxBackup.Shared.Tests/MaxBackup.Shared.Tests.csproj --configuration Release`: 8 passed.
 - Published the CLI and service into their existing installer staging folders, then ran `dotnet build MaxBackup.sln --configuration Release`: succeeded with zero warnings/errors.
 - `Test-Installer.ps1` against the built MSI: retention checks passed, including 384 native condition evaluations. No installer actions were executed.
 - Independent review findings about parent-relative job patterns, source-path normalization, and disappearing directories were corrected and covered by regression tests. Final review reported no unresolved actionable findings.
+- Follow-up compatibility tests reproduced relative-source default-exclusion, cloud scan-cancellation, and malformed job-filter exception regressions before the fixes, then passed. Default exclusions use the original source path, scan cancellation retains the pre-feature job handling, and job filters compile before the scan error handler.
 - Cloud selection was tested with a recording provider. Live Azure transfers, service deployment, and a large-tree performance benchmark were not performed.
 
 ## Review Checkpoint

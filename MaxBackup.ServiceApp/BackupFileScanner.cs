@@ -5,11 +5,9 @@ namespace MaxBackup.ServiceApp;
 
 internal static class BackupFileScanner
 {
-    internal static IEnumerable<string> Scan(string source, IEnumerable<string> includes,
-        IEnumerable<string> excludes, CancellationToken stoppingToken)
+    internal static Matcher CreateMatcher(string source, IEnumerable<string> includes,
+        IEnumerable<string> excludes)
     {
-        stoppingToken.ThrowIfCancellationRequested();
-        source = Path.TrimEndingDirectorySeparator(Path.GetFullPath(source));
         var matcher = new Matcher();
         foreach (var include in includes) matcher.AddInclude(include);
         foreach (var exclude in excludes) matcher.AddExclude(exclude);
@@ -20,8 +18,13 @@ internal static class BackupFileScanner
             matcher.AddExclude("System Volume Information");
             matcher.AddExclude("*~");
         }
-        var result = matcher.Execute(new IgnoreDirectory(new DirectoryInfo(source), null, [], stoppingToken, source));
-        stoppingToken.ThrowIfCancellationRequested();
+        return matcher;
+    }
+
+    internal static IEnumerable<string> Scan(string source, Matcher matcher)
+    {
+        source = Path.TrimEndingDirectorySeparator(Path.GetFullPath(source));
+        var result = matcher.Execute(new IgnoreDirectory(new DirectoryInfo(source), null, [], source));
         return result.Files.Select(file => Path.GetFullPath(Path.Combine(source, file.Path))).ToList();
     }
 
@@ -32,7 +35,7 @@ internal static class BackupFileScanner
     }
 
     private sealed class IgnoreDirectory(DirectoryInfo directory, IgnoreDirectory? parent,
-        IReadOnlyList<IgnoreRule> inherited, CancellationToken token, string scanRoot, string? name = null) : DirectoryInfoBase
+        IReadOnlyList<IgnoreRule> inherited, string scanRoot, string? name = null) : DirectoryInfoBase
     {
         private readonly IReadOnlyList<IgnoreRule> ancestorRules = inherited;
         private IReadOnlyList<IgnoreRule>? rules;
@@ -45,7 +48,6 @@ internal static class BackupFileScanner
             get
             {
                 if (rules != null) return rules;
-                token.ThrowIfCancellationRequested();
                 if (!string.Equals(FullName, scanRoot, StringComparison.OrdinalIgnoreCase)
                     && !FullName.StartsWith(Path.EndsInDirectorySeparator(scanRoot) ? scanRoot : scanRoot + Path.DirectorySeparatorChar,
                         StringComparison.OrdinalIgnoreCase))
@@ -58,7 +60,6 @@ internal static class BackupFileScanner
                 var combined = new List<IgnoreRule>(ancestorRules);
                 for (var i = 0; i < lines.Length; i++)
                 {
-                    token.ThrowIfCancellationRequested();
                     var pattern = lines[i].Trim().TrimStart('\uFEFF').Trim();
                     if (pattern.Length == 0 || pattern.StartsWith('#')) continue;
                     if (pattern.StartsWith('!') || pattern.StartsWith("//", StringComparison.Ordinal)
@@ -85,10 +86,9 @@ internal static class BackupFileScanner
             catch (DirectoryNotFoundException) when (!Directory.Exists(FullName)) { yield break; }
             foreach (var entry in entries)
             {
-                token.ThrowIfCancellationRequested();
                 if (active.Any(rule => rule.Matches(entry))) continue;
                 if (entry is DirectoryInfo child)
-                    yield return new IgnoreDirectory(child, this, active, token, scanRoot);
+                    yield return new IgnoreDirectory(child, this, active, scanRoot);
                 else if (entry is FileInfo file)
                     yield return new FileInfoWrapper(file);
             }
@@ -98,8 +98,8 @@ internal static class BackupFileScanner
         {
             if (path == ".." && directory.Parent is { } outer)
                 return parent != null
-                    ? new IgnoreDirectory(outer, (IgnoreDirectory?)parent.ParentDirectory, parent.ancestorRules, token, scanRoot, "..")
-                    : new IgnoreDirectory(outer, null, [], token, scanRoot, "..");
+                    ? new IgnoreDirectory(outer, (IgnoreDirectory?)parent.ParentDirectory, parent.ancestorRules, scanRoot, "..")
+                    : new IgnoreDirectory(outer, null, [], scanRoot, "..");
             return EnumerateFileSystemInfos().OfType<DirectoryInfoBase>()
                 .FirstOrDefault(entry => string.Equals(entry.Name, path, StringComparison.OrdinalIgnoreCase))!;
         }

@@ -56,6 +56,29 @@ public class BackupIgnoreExecutorTests : IDisposable
         Assert.Contains(logger.Errors, error => error.Contains(".maxbackupignore"));
     }
 
+    [Theory]
+    [InlineData(false, false)]
+    [InlineData(false, true)]
+    [InlineData(true, false)]
+    [InlineData(true, true)]
+    public async Task InvalidJobPatternsPreserveExistingExceptionBehavior(bool cloud, bool exclude)
+    {
+        Write("keep.txt", "keep");
+        var job = Job;
+        if (exclude) job.Exclude = ["a/../b"];
+        else job.Include = ["a/../b"];
+        var logger = new RecordingLogger();
+        var provider = new RecordingProvider();
+
+        await Assert.ThrowsAsync<ArgumentException>(() => cloud
+            ? RunCloud(provider, logger, job: job)
+            : BackupExecutor.RunBackupJobAsync(job, root, logger, CancellationToken.None));
+
+        Assert.Empty(logger.Errors);
+        Assert.Empty(provider.Uploads);
+        if (!cloud) Assert.Empty(Directory.GetFiles(Destination, "*", SearchOption.AllDirectories));
+    }
+
     [Fact]
     public async Task CancellationIsPropagatedBeforeAnyCopies()
     {
@@ -77,6 +100,35 @@ public class BackupIgnoreExecutorTests : IDisposable
         await RunCloud(provider);
         Assert.Equal(["prefix/.maxbackupignore", "prefix/keep.txt"], provider.Uploads.Order());
         Assert.Contains("cache/retained.txt", provider.Existing.Keys);
+    }
+
+    [Theory]
+    [InlineData(false)]
+    [InlineData(true)]
+    public async Task CancellationAtScanStartPreservesExistingJobHandling(bool cloud)
+    {
+        Write("keep.txt", "keep");
+        using var cancellation = new CancellationTokenSource();
+        var logger = new RecordingLogger(message =>
+        {
+            if (message.StartsWith("Scanning for files", StringComparison.Ordinal)) cancellation.Cancel();
+        });
+        var provider = new RecordingProvider();
+
+        if (cloud)
+        {
+            await RunCloud(provider, logger, cancellation.Token);
+            Assert.Contains(logger.Errors, error => error.Contains("Error scanning files"));
+        }
+        else
+        {
+            await Assert.ThrowsAnyAsync<OperationCanceledException>(() =>
+                BackupExecutor.RunBackupJobAsync(Job, root, logger, cancellation.Token));
+            Assert.Empty(Directory.GetFiles(Destination, "*", SearchOption.AllDirectories));
+            Assert.Empty(logger.Errors);
+        }
+        Assert.True(cancellation.IsCancellationRequested);
+        Assert.Empty(provider.Uploads);
     }
 
     [Fact]
@@ -113,13 +165,14 @@ public class BackupIgnoreExecutorTests : IDisposable
         Assert.Contains(logger.Errors, error => error.Contains(".maxbackupignore"));
     }
 
-    private Task RunCloud(RecordingProvider provider, ILogger? logger = null)
+    private Task RunCloud(RecordingProvider provider, ILogger? logger = null, CancellationToken token = default,
+        BackupJobConfig? job = null)
     {
-        var job = Job;
+        job ??= Job;
         job.Provider = "recording";
         job.Destination = "prefix";
         var method = typeof(BackupExecutor).GetMethod("RunCloudBackupJobAsync", BindingFlags.NonPublic | BindingFlags.Static)!;
-        return (Task)method.Invoke(null, [job, root, provider, logger, CancellationToken.None])!;
+        return (Task)method.Invoke(null, [job, root, provider, logger, token])!;
     }
 
     private void Write(string relativePath, string contents)
@@ -131,7 +184,7 @@ public class BackupIgnoreExecutorTests : IDisposable
 
     public void Dispose() => Directory.Delete(root, true);
 
-    private sealed class RecordingLogger : ILogger
+    private sealed class RecordingLogger(Action<string>? onMessage = null) : ILogger
     {
         public List<string> Errors { get; } = [];
         public IDisposable? BeginScope<TState>(TState state) where TState : notnull => null;
@@ -139,6 +192,7 @@ public class BackupIgnoreExecutorTests : IDisposable
         public void Log<TState>(LogLevel logLevel, EventId eventId, TState state, Exception? exception,
             Func<TState, Exception?, string> formatter)
         {
+            onMessage?.Invoke(formatter(state, exception));
             if (logLevel == LogLevel.Error) Errors.Add(formatter(state, exception) + exception);
         }
     }

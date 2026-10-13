@@ -89,17 +89,14 @@ public static class BackupExecutor
                 return;
             }
 
+            var matcher = BackupFileScanner.CreateMatcher(source, config.Include, config.Exclude);
             logger?.LogInformation("Scanning for files in {path}", source);
 
             List<string> sourceFiles;
             try
             {
                 sourceFiles = (await Task.Run(() =>
-                    BackupFileScanner.Scan(source, config.Include, config.Exclude, stoppingToken), stoppingToken)).ToList();
-            }
-            catch (OperationCanceledException)
-            {
-                throw;
+                    BackupFileScanner.Scan(source, matcher), stoppingToken)).ToList();
             }
             catch (Exception ex)
             {
@@ -329,6 +326,7 @@ public static class BackupExecutor
                 }
             }
 
+            var matcher = BackupFileScanner.CreateMatcher(source, config.Include, config.Exclude);
             logger?.LogInformation("Scanning for files {path}", source);
 
             HashSet<string> sources = new HashSet<string>();
@@ -336,7 +334,7 @@ public static class BackupExecutor
 
             using (stoppingToken.Register(() => tcs.TrySetCanceled(stoppingToken)))
             {
-                var matchTask = Task.Run(() => BackupFileScanner.Scan(source, config.Include, config.Exclude, stoppingToken), stoppingToken);
+                var matchTask = Task.Run(() => BackupFileScanner.Scan(source, matcher), stoppingToken);
 
                 var completedTask = await Task.WhenAny(tcs.Task, matchTask);
 
@@ -350,10 +348,6 @@ public static class BackupExecutor
                 try
                 {
                     results = await matchTask;
-                }
-                catch (OperationCanceledException)
-                {
-                    throw;
                 }
                 catch (Exception ex)
                 {

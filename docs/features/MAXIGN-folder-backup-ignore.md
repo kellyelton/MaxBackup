@@ -43,7 +43,7 @@ MaxBackup users can place a `.maxbackupignore` text file in a backed-up folder t
   - MAXIGNR-4.3: A `.maxbackupignore` file is itself eligible for backup under the same filters as other files.
   - MAXIGNR-4.4: Excluding content does not delete source files or existing backup copies.
   - MAXIGNR-4.5: An unreadable or invalid ignore file encountered during scanning logs an error and prevents copies or uploads for that job pass.
-  - MAXIGNR-4.6: Cancellation interrupts scanning and propagates through the job's normal cancellation behavior.
+  - MAXIGNR-4.6: Preserve existing job cancellation handling; the scanner adds no cancellation checks or exception handling changes.
   - MAXIGNR-4.7: Ignore support requires no job configuration changes or automatic application of exclusions to existing repositories.
 
 ## Non-Goals
