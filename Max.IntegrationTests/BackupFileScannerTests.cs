@@ -5,7 +5,8 @@ namespace Max.IntegrationTests;
 
 public sealed class BackupFileScannerTests : IDisposable
 {
-    private readonly string root = Path.Combine(Path.GetTempPath(), "MaxBackup-scanner-" + Guid.NewGuid());
+    // Keep fixtures on the working directory's drive so relative-path tests remain relative on CI.
+    private readonly string root = Path.Combine(Environment.CurrentDirectory, "MaxBackup-scanner-" + Guid.NewGuid());
 
     public BackupFileScannerTests() => Directory.CreateDirectory(root);
     private void Write(string path, string text = "data")
@@ -90,6 +91,7 @@ public sealed class BackupFileScannerTests : IDisposable
         Write("keep.txt"); Write("scratch~");
         Write("$Recycle.Bin"); Write("System Volume Information");
         var source = relative ? Path.GetRelativePath(Environment.CurrentDirectory, root) : root;
+        Assert.Equal(!relative, Path.IsPathFullyQualified(source));
         var matcher = new Matcher().AddInclude("**/*");
         var drive = Path.GetPathRoot(source);
         if (drive != null && drive.Length == 3 && drive.EndsWith(":\\", StringComparison.OrdinalIgnoreCase))
