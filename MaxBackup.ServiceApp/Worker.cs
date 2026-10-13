@@ -1,5 +1,4 @@
 using System.Diagnostics;
-using Microsoft.Extensions.FileSystemGlobbing;
 using Microsoft.Extensions.Options;
 
 namespace MaxBackup.ServiceApp
@@ -82,27 +81,7 @@ namespace MaxBackup.ServiceApp
                     }
                 }
 
-                var matcher = new Matcher();
-                foreach (var include in config.Include)
-                {
-                    matcher.AddInclude(include);
-                }
-                foreach (var exclude in config.Exclude)
-                {
-                    matcher.AddExclude(exclude);
-                }
-
-                { // Add default excludes
-                    // check if the source is the root of a drive
-                    var drive = Path.GetPathRoot(config.Source);
-                    if (drive != null && drive.Length == 3 && drive.EndsWith(":\\", StringComparison.OrdinalIgnoreCase))
-                    {
-                        matcher.AddExclude("$Recycle.Bin");
-                        matcher.AddExclude("System Volume Information");
-                        matcher.AddExclude("*~");
-                    }
-                }
-
+                var matcher = BackupFileScanner.CreateMatcher(config.Source, config.Include, config.Exclude);
                 _logger.LogInformation("Scanning for files {path}", config.Source);
 
                 HashSet<string> sources = new HashSet<string>();
@@ -110,7 +89,7 @@ namespace MaxBackup.ServiceApp
 
                 using (stoppingToken.Register(() => tcs.TrySetCanceled(stoppingToken)))
                 {
-                    var matchTask = Task.Run(() => matcher.GetResultsInFullPath(config.Source), stoppingToken);
+                    var matchTask = Task.Run(() => BackupFileScanner.Scan(config.Source, matcher), stoppingToken);
 
                     var completedTask = await Task.WhenAny(tcs.Task, matchTask);
 

@@ -1,6 +1,5 @@
 using System.Diagnostics;
 using MaxBackup.ServiceApp.Providers;
-using Microsoft.Extensions.FileSystemGlobbing;
 
 namespace MaxBackup.ServiceApp;
 
@@ -90,31 +89,14 @@ public static class BackupExecutor
                 return;
             }
 
-            // Build file matcher
-            var matcher = new Matcher();
-            foreach (var include in config.Include)
-                matcher.AddInclude(include);
-            foreach (var exclude in config.Exclude)
-                matcher.AddExclude(exclude);
-
-            // Add default excludes
-            var drive = Path.GetPathRoot(source);
-            if (drive != null && drive.Length == 3 && drive.EndsWith(":\\", StringComparison.OrdinalIgnoreCase))
-            {
-                matcher.AddExclude("$Recycle.Bin");
-                matcher.AddExclude("System Volume Information");
-                matcher.AddExclude("*~");
-            }
-
+            var matcher = BackupFileScanner.CreateMatcher(source, config.Include, config.Exclude);
             logger?.LogInformation("Scanning for files in {path}", source);
 
-            var sourceFiles = new List<string>();
-            var matchTask = Task.Run(() => matcher.GetResultsInFullPath(source), stoppingToken);
-            
+            List<string> sourceFiles;
             try
             {
-                var results = await matchTask;
-                sourceFiles.AddRange(results);
+                sourceFiles = (await Task.Run(() =>
+                    BackupFileScanner.Scan(source, matcher), stoppingToken)).ToList();
             }
             catch (Exception ex)
             {
@@ -344,25 +326,7 @@ public static class BackupExecutor
                 }
             }
 
-            var matcher = new Matcher();
-            foreach (var include in config.Include)
-            {
-                matcher.AddInclude(include);
-            }
-            foreach (var exclude in config.Exclude)
-            {
-                matcher.AddExclude(exclude);
-            }
-
-            // Add default excludes
-            var drive = Path.GetPathRoot(source);
-            if (drive != null && drive.Length == 3 && drive.EndsWith(":\\", StringComparison.OrdinalIgnoreCase))
-            {
-                matcher.AddExclude("$Recycle.Bin");
-                matcher.AddExclude("System Volume Information");
-                matcher.AddExclude("*~");
-            }
-
+            var matcher = BackupFileScanner.CreateMatcher(source, config.Include, config.Exclude);
             logger?.LogInformation("Scanning for files {path}", source);
 
             HashSet<string> sources = new HashSet<string>();
@@ -370,7 +334,7 @@ public static class BackupExecutor
 
             using (stoppingToken.Register(() => tcs.TrySetCanceled(stoppingToken)))
             {
-                var matchTask = Task.Run(() => matcher.GetResultsInFullPath(source), stoppingToken);
+                var matchTask = Task.Run(() => BackupFileScanner.Scan(source, matcher), stoppingToken);
 
                 var completedTask = await Task.WhenAny(tcs.Task, matchTask);
 

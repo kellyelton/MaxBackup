@@ -17,6 +17,7 @@ Ordered list of tasks to complete. Check off tasks as they're completed.
 
 ## Completed Tasks
 
+- [x] [folder-backup-ignore](tasks/folder-backup-ignore.md) - Add repository-specific `.maxbackupignore` exclusions *(completed 2026-10-12; implementation validated, awaiting PR review)*
 - [x] [backup-executor-provider-integration](tasks/backup-executor-provider-integration.md) - Integrate IStorageProvider into BackupExecutor *(completed 2026-01-12)*
 - [x] [cloud-backup-progress-reporting](tasks/cloud-backup-progress-reporting.md) - Add upload progress logging *(completed 2026-01-12)*
 - [x] [provider-credential-encryption](tasks/provider-credential-encryption.md) - Encrypt provider credentials using Windows DPAPI *(completed 2026-01-12)*
