@@ -42,6 +42,8 @@ jobs:
             if ($LASTEXITCODE -ne 0) { throw 'Unable to read published manifest' }
             $committed = GraphQL 'mutation($input:CreateCommitOnBranchInput!) { createCommitOnBranch(input:$input) { commit { oid } } }' @{ input = @{ branch = @{ repositoryNameWithOwner = 'kellyelton/winget-pkgs'; branchName = $branch }; expectedHeadOid = $data.upstream.defaultBranchRef.target.oid; message = @{ headline = 'Verify package-only publishing permissions' }; fileChanges = @{ additions = @(@{ path = $path; contents = ($manifest -replace '\s','') }) } } }
             $commit = gh api "repos/kellyelton/winget-pkgs/commits/$branch" | ConvertFrom-Json
+            $committed | ConvertTo-Json -Depth 6 | Write-Output
+            @{ sha = $commit.sha; parent = $commit.parents[0].sha; expectedParent = $data.upstream.defaultBranchRef.target.oid; files = $commit.files.filename } | ConvertTo-Json | Write-Output
             if ($LASTEXITCODE -ne 0 -or $commit.files.Count -ne 1 -or $commit.files[0].filename -ne $path -or $commit.parents[0].sha -ne $data.upstream.defaultBranchRef.target.oid) { throw 'Package-only commit verification failed' }
             Write-Output "Verified package-only commit: $($commit.sha)"
           } finally {
