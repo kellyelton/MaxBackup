@@ -1,0 +1,44 @@
+name: Verify WinGet token
+on:
+  push:
+    branches: [feature/winget-public-token-publishing]
+    paths: ['.github/workflows/verify-winget-token.yml']
+permissions:
+  contents: read
+jobs:
+  verify:
+    runs-on: windows-latest
+    steps:
+      - name: Verify package-only publishing with restricted token
+        shell: pwsh
+        env:
+          GH_TOKEN: ${{ secrets.WINGET_TOKEN }}
+        run: |
+          $ErrorActionPreference = 'Stop'
+          function GraphQL($query, $variables) {
+            $json = @{ query = $query; variables = $variables } | ConvertTo-Json -Depth 20 -Compress
+            $result = $json | gh api graphql --input - | ConvertFrom-Json
+            if ($LASTEXITCODE -ne 0 -or $result.errors) { throw 'GitHub GraphQL request failed' }
+            return $result.data
+          }
+          $response = Invoke-WebRequest https://api.github.com/user -Headers @{ Authorization = "Bearer $env:GH_TOKEN"; 'User-Agent' = 'MaxBackup-token-check' }
+          $scopes = $response.Headers['X-OAuth-Scopes'] -join ','
+          if ($scopes.Trim() -ne 'public_repo') { throw 'Expected public_repo-only publishing token' }
+          Write-Output 'Verified public_repo-only token.'
+          $data = GraphQL 'query { upstream: repository(owner:"microsoft",name:"winget-pkgs") { defaultBranchRef { target { oid } } } fork: repository(owner:"kellyelton",name:"winget-pkgs") { id } }' @{}
+          $branch = "maxbackup-token-check-$env:GITHUB_RUN_ID"
+          $ref = $null
+          try {
+            $created = GraphQL 'mutation($input:CreateRefInput!) { createRef(input:$input) { ref { id } } }' @{ input = @{ repositoryId = $data.fork.id; name = "refs/heads/$branch"; oid = $data.upstream.defaultBranchRef.target.oid } }
+            $ref = $created.createRef.ref.id
+            $path = 'manifests/k/KellyElton/Max/Backup/0.2.34/KellyElton.Max.Backup.yaml'
+            $manifest = gh api "repos/kellyelton/winget-pkgs/contents/${path}?ref=c6759bf1bf2bec3e9669a55c76c2bf3752ae1bb4" --jq .content
+            if ($LASTEXITCODE -ne 0) { throw 'Unable to read published manifest' }
+            $committed = GraphQL 'mutation($input:CreateCommitOnBranchInput!) { createCommitOnBranch(input:$input) { commit { oid } } }' @{ input = @{ branch = @{ repositoryNameWithOwner = 'kellyelton/winget-pkgs'; branchName = $branch }; expectedHeadOid = $data.upstream.defaultBranchRef.target.oid; message = @{ headline = 'Verify package-only publishing permissions' }; fileChanges = @{ additions = @(@{ path = $path; contents = ($manifest -replace '\s','') }) } } }
+            Write-Output "Package-only commit succeeded: $($committed.createCommitOnBranch.commit.oid)"
+          } finally {
+            if ($ref) {
+              $null = GraphQL 'mutation($input:DeleteRefInput!) { deleteRef(input:$input) { clientMutationId } }' @{ input = @{ refId = $ref } }
+              Write-Output 'Removed temporary verification branch.'
+            }
+          }
