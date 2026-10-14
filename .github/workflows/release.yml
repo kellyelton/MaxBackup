@@ -116,12 +116,10 @@ jobs:
         choco push KellyElton.Max.Backup.${{ steps.version.outputs.majorMinorPatch }}.nupkg --source https://push.chocolatey.org/ --api-key ${{ secrets.CHOCOLATEY_API_KEY }}
 
     - name: Submit to WinGet
-      uses: vedantmgoyal2009/winget-releaser@v2
-      with:
-        identifier: KellyElton.Max.Backup
-        installers-regex: '.*\.msi$'
-        token: ${{ secrets.WINGET_TOKEN }}
-        release-tag: ${{ steps.version.outputs.majorMinorPatch }}
+      run: ./.github/scripts/Submit-WinGet.ps1 -Version $env:RELEASE_VERSION
+      env:
+        GITHUB_TOKEN: ${{ secrets.WINGET_TOKEN }}
+        RELEASE_VERSION: ${{ steps.version.outputs.majorMinorPatch }}
 
     - name: Find WinGet PR
       id: wingetPr
