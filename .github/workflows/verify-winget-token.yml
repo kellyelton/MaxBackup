@@ -23,8 +23,10 @@ jobs:
           $ErrorActionPreference = 'Stop'
           function GraphQL($query, $variables) {
             $json = @{ query = $query; variables = $variables } | ConvertTo-Json -Depth 20 -Compress
-            $result = $json | gh api graphql --input - | ConvertFrom-Json
+            $raw = $json | gh api graphql --input -
+            $result = $raw | ConvertFrom-Json
             if ($LASTEXITCODE -ne 0 -or $result.errors) { throw 'GitHub GraphQL request failed' }
+            if (-not $result.data) { Write-Output $raw; throw 'GitHub returned no mutation data' }
             return $result.data
           }
           $response = Invoke-WebRequest https://api.github.com/user -Headers @{ Authorization = "Bearer $env:GH_TOKEN"; 'User-Agent' = 'MaxBackup-token-check' }
