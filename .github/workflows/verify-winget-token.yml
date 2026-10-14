@@ -9,6 +9,12 @@ jobs:
   verify:
     runs-on: windows-latest
     steps:
+      - uses: actions/checkout@v6
+      - name: Generate manifests with the restricted publishing token
+        shell: pwsh
+        env:
+          GITHUB_TOKEN: ${{ secrets.WINGET_TOKEN }}
+        run: ./.github/scripts/Submit-WinGet.ps1 -Version 0.2.34 -DryRun
       - name: Verify package-only publishing with restricted token
         shell: pwsh
         env:
