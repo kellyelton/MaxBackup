@@ -32,11 +32,11 @@ jobs:
           $scopes = $response.Headers['X-OAuth-Scopes'] -join ','
           if ($scopes.Trim() -ne 'public_repo') { throw 'Expected public_repo-only publishing token' }
           Write-Output 'Verified public_repo-only token.'
-          $data = GraphQL 'query { upstream: repository(owner:"microsoft",name:"winget-pkgs") { defaultBranchRef { target { oid } } } fork: repository(owner:"kellyelton",name:"winget-pkgs") { id } }' @{}
+          $data = GraphQL 'query { upstream: repository(owner:"microsoft",name:"winget-pkgs") { defaultBranchRef { target { oid } } } fork: repository(owner:"kellyelton",name:"winget-pkgs") { id defaultBranchRef { target { oid } } } }' @{}
           $branch = "maxbackup-token-check-$env:GITHUB_RUN_ID"
           $ref = $null
           try {
-            $created = GraphQL 'mutation($input:CreateRefInput!) { createRef(input:$input) { ref { id } } }' @{ input = @{ repositoryId = $data.fork.id; name = "refs/heads/$branch"; oid = $data.upstream.defaultBranchRef.target.oid } }
+            $created = GraphQL 'mutation($input:CreateRefInput!) { createRef(input:$input) { ref { id } } }' @{ input = @{ repositoryId = $data.fork.id; name = "refs/heads/$branch"; oid = $data.fork.defaultBranchRef.target.oid } }
             $ref = $created.createRef.ref.id
             $path = 'manifests/k/KellyElton/Max/Backup/0.2.34/KellyElton.Max.Backup.yaml'
             $manifest = gh api "repos/kellyelton/winget-pkgs/contents/${path}?ref=c6759bf1bf2bec3e9669a55c76c2bf3752ae1bb4" --jq .content
@@ -44,8 +44,8 @@ jobs:
             $body = @{ message = 'Verify package-only publishing permissions'; branch = $branch; content = ($manifest -replace '\s','') } | ConvertTo-Json -Compress
             $createdCommit = Invoke-RestMethod "https://api.github.com/repos/kellyelton/winget-pkgs/contents/$path" -Method Put -ContentType 'application/json' -Body $body -Headers @{ Authorization = "Bearer $env:GH_TOKEN"; 'User-Agent' = 'MaxBackup-token-check' }
             $commit = gh api "repos/kellyelton/winget-pkgs/commits/$branch" | ConvertFrom-Json
-            @{ sha = $commit.sha; parent = $commit.parents[0].sha; expectedParent = $data.upstream.defaultBranchRef.target.oid; files = $commit.files.filename } | ConvertTo-Json | Write-Output
-            if ($LASTEXITCODE -ne 0 -or $commit.files.Count -ne 1 -or $commit.files[0].filename -ne $path -or $commit.parents[0].sha -ne $data.upstream.defaultBranchRef.target.oid) { throw 'Package-only commit verification failed' }
+            @{ sha = $commit.sha; parent = $commit.parents[0].sha; expectedParent = $data.fork.defaultBranchRef.target.oid; files = $commit.files.filename } | ConvertTo-Json | Write-Output
+            if ($LASTEXITCODE -ne 0 -or $commit.files.Count -ne 1 -or $commit.files[0].filename -ne $path -or $commit.parents[0].sha -ne $data.fork.defaultBranchRef.target.oid) { throw 'Package-only commit verification failed' }
             Write-Output "Verified package-only commit: $($commit.sha)"
           } finally {
             if ($ref) {
